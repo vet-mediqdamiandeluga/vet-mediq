@@ -59,12 +59,10 @@
       margin-left: 1rem;
     }
     .btn-outline:hover { background: var(--green); color: #fff; }
-    .hero-img {
-      flex-shrink: 0; width: 420px; height: 420px;
-      background: var(--green2); border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 10rem; box-shadow: 0 12px 40px rgba(46,125,50,.25);
+    .hero-canvas-wrap {
+      flex-shrink: 0; width: 460px; height: 460px; position: relative;
     }
+    .hero-canvas-wrap canvas { display: block; }
 
     /* SECTION BASE */
     section { padding: 80px 5%; }
@@ -178,7 +176,7 @@
     @media (max-width: 768px) {
       nav ul { display: none; }
       .hero { flex-direction: column; text-align: center; min-height: auto; padding-top: 60px; }
-      .hero-img { width: 260px; height: 260px; font-size: 7rem; }
+      .hero-canvas-wrap { width: 300px; height: 300px; }
       .about-inner { flex-direction: column; }
       .contact-inner { grid-template-columns: 1fr; }
     }
@@ -209,7 +207,9 @@
     <a href="#kontakt" class="btn">Umów wizytę</a>
     <a href="#uslugi" class="btn btn-outline">Nasze usługi</a>
   </div>
-  <div class="hero-img">🐾</div>
+  <div class="hero-canvas-wrap">
+    <canvas id="vetCanvas"></canvas>
+  </div>
 </section>
 
 <!-- STATS -->
@@ -394,6 +394,180 @@
 
 <!-- TOAST -->
 <div class="toast" id="toast">Zgłoszenie wysłane! Skontaktujemy się wkrótce. 🐾</div>
+
+<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+<script>
+(function() {
+  const wrap = document.querySelector('.hero-canvas-wrap');
+  const W = wrap.clientWidth, H = wrap.clientHeight;
+
+  const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('vetCanvas'), antialias: true, alpha: true });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.setSize(W, H);
+
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(60, W / H, 0.1, 200);
+  camera.position.set(0, 0, 22);
+
+  // ── CORE SPHERE ──────────────────────────────────────────────
+  const coreGeo = new THREE.SphereGeometry(2.2, 64, 64);
+  const coreMat = new THREE.MeshPhongMaterial({
+    color: 0x1e88e5, emissive: 0x1565c0, emissiveIntensity: 0.6,
+    transparent: true, opacity: 0.92, shininess: 120
+  });
+  const core = new THREE.Mesh(coreGeo, coreMat);
+  scene.add(core);
+
+  // glow halo around core
+  const haloGeo = new THREE.SphereGeometry(2.9, 32, 32);
+  const haloMat = new THREE.MeshBasicMaterial({
+    color: 0x42a5f5, transparent: true, opacity: 0.08, side: THREE.BackSide
+  });
+  scene.add(new THREE.Mesh(haloGeo, haloMat));
+
+  // ── DNA HELIX ─────────────────────────────────────────────────
+  const helixGroup = new THREE.Group();
+  scene.add(helixGroup);
+
+  const blobMat = new THREE.MeshPhongMaterial({ color: 0x90caf9, emissive: 0x1e88e5, emissiveIntensity: 0.5, shininess: 80 });
+  const connMat = new THREE.MeshBasicMaterial({ color: 0x42a5f5, transparent: true, opacity: 0.45 });
+  const blobGeo = new THREE.SphereGeometry(0.22, 12, 12);
+
+  const STEPS = 38, RADIUS = 4.5, HEIGHT = 10;
+  const posA = [], posB = [];
+  for (let i = 0; i < STEPS; i++) {
+    const t = (i / STEPS) * Math.PI * 4;
+    const y = (i / STEPS) * HEIGHT - HEIGHT / 2;
+    posA.push(new THREE.Vector3(Math.cos(t) * RADIUS, y, Math.sin(t) * RADIUS));
+    posB.push(new THREE.Vector3(Math.cos(t + Math.PI) * RADIUS, y, Math.sin(t + Math.PI) * RADIUS));
+  }
+
+  posA.forEach(p => { const m = new THREE.Mesh(blobGeo, blobMat); m.position.copy(p); helixGroup.add(m); });
+  posB.forEach(p => {
+    const m = new THREE.Mesh(blobGeo, new THREE.MeshPhongMaterial({ color: 0xbbdefb, emissive: 0x1565c0, emissiveIntensity: 0.4, shininess: 80 }));
+    m.position.copy(p); helixGroup.add(m);
+  });
+
+  // cross-links every 3 steps
+  for (let i = 0; i < STEPS; i += 3) {
+    const a = posA[i], b = posB[i];
+    const dir = new THREE.Vector3().subVectors(b, a);
+    const len = dir.length();
+    const cyl = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.07, 0.07, len, 6),
+      connMat
+    );
+    cyl.position.copy(a).addScaledVector(dir.normalize(), len / 2);
+    cyl.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), dir.normalize());
+    helixGroup.add(cyl);
+  }
+
+  // ── ORBITAL RINGS ─────────────────────────────────────────────
+  function makeRing(count, radius, tilt, hue) {
+    const g = new THREE.Group();
+    const sm = new THREE.MeshBasicMaterial({ color: hue });
+    for (let i = 0; i < count; i++) {
+      const angle = (i / count) * Math.PI * 2;
+      const s = new THREE.Mesh(new THREE.SphereGeometry(0.13, 8, 8), sm);
+      s.position.set(Math.cos(angle) * radius, 0, Math.sin(angle) * radius);
+      g.add(s);
+    }
+    g.rotation.x = tilt;
+    scene.add(g);
+    return g;
+  }
+  const ring1 = makeRing(60, 7.5, 0.4,   0x1e88e5);
+  const ring2 = makeRing(50, 9.0, 1.1,   0x42a5f5);
+  const ring3 = makeRing(40, 10.5, -0.7, 0x90caf9);
+
+  // ── STAR FIELD ────────────────────────────────────────────────
+  const starCount = 600;
+  const starPositions = new Float32Array(starCount * 3);
+  for (let i = 0; i < starCount * 3; i++) starPositions[i] = (Math.random() - 0.5) * 80;
+  const starGeo = new THREE.BufferGeometry();
+  starGeo.setAttribute('position', new THREE.BufferAttribute(starPositions, 3));
+  scene.add(new THREE.Points(starGeo, new THREE.PointsMaterial({ color: 0x90caf9, size: 0.18, transparent: true, opacity: 0.6 })));
+
+  // ── FLOATING PARTICLES ────────────────────────────────────────
+  const floatCount = 80;
+  const floatData = [];
+  for (let i = 0; i < floatCount; i++) {
+    const theta = Math.random() * Math.PI * 2;
+    const phi   = Math.acos(2 * Math.random() - 1);
+    const r     = 5.5 + Math.random() * 5;
+    const mesh  = new THREE.Mesh(
+      new THREE.SphereGeometry(0.07 + Math.random() * 0.10, 6, 6),
+      new THREE.MeshBasicMaterial({ color: 0x64b5f6, transparent: true, opacity: 0.7 })
+    );
+    mesh.position.set(r * Math.sin(phi) * Math.cos(theta), r * Math.sin(phi) * Math.sin(theta), r * Math.cos(phi));
+    scene.add(mesh);
+    floatData.push({ mesh, speed: 0.3 + Math.random() * 0.7, offset: Math.random() * Math.PI * 2 });
+  }
+
+  // ── LIGHTS ────────────────────────────────────────────────────
+  scene.add(new THREE.AmbientLight(0xffffff, 0.4));
+  const dl = new THREE.DirectionalLight(0x90caf9, 1.5);
+  dl.position.set(5, 8, 5);
+  scene.add(dl);
+  const pl = new THREE.PointLight(0x1e88e5, 2, 30);
+  pl.position.set(0, 0, 5);
+  scene.add(pl);
+
+  // ── MOUSE PARALLAX ────────────────────────────────────────────
+  let mx = 0, my = 0;
+  wrap.addEventListener('mousemove', e => {
+    const r = wrap.getBoundingClientRect();
+    mx = ((e.clientX - r.left) / r.width  - 0.5) * 2;
+    my = ((e.clientY - r.top)  / r.height - 0.5) * 2;
+  });
+
+  // ── ANIMATE ───────────────────────────────────────────────────
+  let t = 0;
+  function animate() {
+    requestAnimationFrame(animate);
+    t += 0.012;
+
+    // pulsing core
+    const pulse = 1 + 0.04 * Math.sin(t * 2.5);
+    core.scale.setScalar(pulse);
+    coreMat.emissiveIntensity = 0.5 + 0.3 * Math.sin(t * 2.5);
+
+    // helix spin + float
+    helixGroup.rotation.y = t * 0.35;
+    helixGroup.position.y = Math.sin(t * 0.6) * 0.4;
+
+    // rings
+    ring1.rotation.y = t * 0.5;
+    ring2.rotation.y = -t * 0.35;
+    ring3.rotation.y = t * 0.22;
+
+    // floating particles
+    floatData.forEach(({ mesh, speed, offset }) => {
+      mesh.position.y += Math.sin(t * speed + offset) * 0.008;
+      mesh.rotation.y += 0.01;
+    });
+
+    // point light pulse
+    pl.intensity = 1.5 + Math.sin(t * 2) * 0.8;
+
+    // mouse parallax
+    camera.position.x += (mx * 1.5 - camera.position.x) * 0.05;
+    camera.position.y += (-my * 1.5 - camera.position.y) * 0.05;
+    camera.lookAt(0, 0, 0);
+
+    renderer.render(scene, camera);
+  }
+  animate();
+
+  // resize
+  window.addEventListener('resize', () => {
+    const W2 = wrap.clientWidth, H2 = wrap.clientHeight;
+    renderer.setSize(W2, H2);
+    camera.aspect = W2 / H2;
+    camera.updateProjectionMatrix();
+  });
+})();
+</script>
 
 <script>
   function handleForm(e) {
