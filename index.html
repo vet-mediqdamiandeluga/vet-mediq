@@ -3,9 +3,414 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>VetMediq</title>
+  <title>VetMediq – Gabinet Weterynaryjny</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --green:  #2e7d32;
+      --green2: #43a047;
+      --light:  #f1f8e9;
+      --dark:   #1b2d1c;
+      --gray:   #f5f5f5;
+      --text:   #333;
+      --radius: 12px;
+    }
+
+    body { font-family: 'Segoe UI', sans-serif; color: var(--text); line-height: 1.6; }
+
+    /* NAV */
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 5%; height: 64px;
+      background: #fff; box-shadow: 0 2px 8px rgba(0,0,0,.1);
+    }
+    .logo { font-size: 1.5rem; font-weight: 700; color: var(--green); letter-spacing: 1px; }
+    .logo span { color: var(--green2); }
+    nav ul { list-style: none; display: flex; gap: 2rem; }
+    nav a { text-decoration: none; color: var(--text); font-weight: 500; transition: color .2s; }
+    nav a:hover { color: var(--green); }
+    .nav-btn {
+      background: var(--green); color: #fff; border: none; padding: .5rem 1.2rem;
+      border-radius: 6px; cursor: pointer; font-size: .95rem; transition: background .2s;
+    }
+    .nav-btn:hover { background: var(--dark); }
+
+    /* HERO */
+    .hero {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 80px 5%; gap: 40px;
+      background: linear-gradient(135deg, var(--light) 0%, #fff 100%);
+      min-height: 90vh;
+    }
+    .hero-text { max-width: 560px; }
+    .hero-text h1 { font-size: clamp(2rem, 4vw, 3rem); color: var(--dark); line-height: 1.2; margin-bottom: 1rem; }
+    .hero-text h1 em { font-style: normal; color: var(--green); }
+    .hero-text p { font-size: 1.1rem; color: #555; margin-bottom: 2rem; }
+    .btn {
+      display: inline-block; padding: .8rem 2rem;
+      background: var(--green); color: #fff; border-radius: 8px;
+      text-decoration: none; font-weight: 600; transition: background .2s, transform .15s;
+    }
+    .btn:hover { background: var(--dark); transform: translateY(-2px); }
+    .btn-outline {
+      background: transparent; border: 2px solid var(--green); color: var(--green);
+      margin-left: 1rem;
+    }
+    .btn-outline:hover { background: var(--green); color: #fff; }
+    .hero-img {
+      flex-shrink: 0; width: 420px; height: 420px;
+      background: var(--green2); border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 10rem; box-shadow: 0 12px 40px rgba(46,125,50,.25);
+    }
+
+    /* SECTION BASE */
+    section { padding: 80px 5%; }
+    .section-title { text-align: center; font-size: 2rem; color: var(--dark); margin-bottom: .5rem; }
+    .section-sub  { text-align: center; color: #666; margin-bottom: 3rem; }
+
+    /* STATS */
+    .stats {
+      background: var(--green); color: #fff;
+      display: flex; justify-content: space-around; flex-wrap: wrap; padding: 50px 5%;
+    }
+    .stat { text-align: center; padding: 1rem 2rem; }
+    .stat strong { display: block; font-size: 2.5rem; font-weight: 700; }
+    .stat span { font-size: .95rem; opacity: .85; }
+
+    /* SERVICES */
+    #uslugi { background: var(--gray); }
+    .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.5rem; }
+    .card {
+      background: #fff; border-radius: var(--radius); padding: 2rem 1.5rem;
+      box-shadow: 0 2px 12px rgba(0,0,0,.07); text-align: center;
+      transition: transform .2s, box-shadow .2s;
+    }
+    .card:hover { transform: translateY(-6px); box-shadow: 0 8px 24px rgba(0,0,0,.12); }
+    .card-icon { font-size: 3rem; margin-bottom: 1rem; }
+    .card h3 { color: var(--green); margin-bottom: .5rem; font-size: 1.15rem; }
+    .card p { font-size: .9rem; color: #555; }
+
+    /* ABOUT */
+    .about-inner {
+      display: flex; gap: 60px; align-items: center; flex-wrap: wrap;
+    }
+    .about-img {
+      flex: 0 0 340px; height: 340px;
+      background: var(--light); border-radius: var(--radius);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 9rem;
+    }
+    .about-text h2 { font-size: 1.8rem; color: var(--dark); margin-bottom: 1rem; }
+    .about-text p { color: #555; margin-bottom: 1rem; }
+    .check-list { list-style: none; margin-top: 1rem; }
+    .check-list li { padding: .4rem 0; color: #444; }
+    .check-list li::before { content: "✔ "; color: var(--green); font-weight: 700; }
+
+    /* TEAM */
+    #zespol { background: var(--gray); }
+    .team { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.5rem; }
+    .member {
+      background: #fff; border-radius: var(--radius); padding: 2rem 1rem;
+      text-align: center; box-shadow: 0 2px 12px rgba(0,0,0,.07);
+    }
+    .avatar {
+      width: 90px; height: 90px; border-radius: 50%;
+      background: var(--green2); margin: 0 auto 1rem;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 2.5rem; color: #fff;
+    }
+    .member h3 { color: var(--dark); margin-bottom: .25rem; }
+    .member span { font-size: .85rem; color: var(--green); font-weight: 600; }
+    .member p { font-size: .85rem; color: #666; margin-top: .5rem; }
+
+    /* CONTACT */
+    .contact-inner { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: start; }
+    .contact-info h3 { font-size: 1.4rem; color: var(--dark); margin-bottom: 1.5rem; }
+    .info-row { display: flex; gap: 1rem; margin-bottom: 1.2rem; align-items: flex-start; }
+    .info-icon { font-size: 1.4rem; flex-shrink: 0; }
+    .info-text strong { display: block; color: var(--dark); }
+    .info-text span { font-size: .9rem; color: #555; }
+    .hours-table { width: 100%; border-collapse: collapse; margin-top: 1rem; font-size: .9rem; }
+    .hours-table td { padding: .4rem .6rem; border-bottom: 1px solid #eee; }
+    .hours-table td:last-child { text-align: right; color: var(--green); font-weight: 600; }
+
+    form { background: var(--gray); padding: 2rem; border-radius: var(--radius); }
+    form h3 { font-size: 1.4rem; color: var(--dark); margin-bottom: 1.5rem; }
+    .form-group { margin-bottom: 1rem; }
+    label { display: block; font-size: .85rem; font-weight: 600; color: #444; margin-bottom: .35rem; }
+    input, select, textarea {
+      width: 100%; padding: .7rem 1rem; border: 1px solid #ddd;
+      border-radius: 8px; font-size: .95rem; outline: none;
+      transition: border-color .2s;
+    }
+    input:focus, select:focus, textarea:focus { border-color: var(--green); }
+    textarea { resize: vertical; min-height: 100px; }
+    .submit-btn {
+      width: 100%; padding: .85rem; background: var(--green); color: #fff;
+      border: none; border-radius: 8px; font-size: 1rem; font-weight: 600;
+      cursor: pointer; transition: background .2s;
+    }
+    .submit-btn:hover { background: var(--dark); }
+
+    /* FOOTER */
+    footer {
+      background: var(--dark); color: #ccc;
+      display: flex; justify-content: space-between; align-items: center;
+      flex-wrap: wrap; gap: 1rem; padding: 1.5rem 5%; font-size: .9rem;
+    }
+    footer a { color: var(--green2); text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
+
+    /* TOAST */
+    .toast {
+      position: fixed; bottom: 30px; right: 30px;
+      background: var(--green); color: #fff;
+      padding: 1rem 1.5rem; border-radius: 8px;
+      font-weight: 600; opacity: 0; pointer-events: none;
+      transition: opacity .4s; z-index: 999;
+    }
+    .toast.show { opacity: 1; }
+
+    /* RESPONSIVE */
+    @media (max-width: 768px) {
+      nav ul { display: none; }
+      .hero { flex-direction: column; text-align: center; min-height: auto; padding-top: 60px; }
+      .hero-img { width: 260px; height: 260px; font-size: 7rem; }
+      .about-inner { flex-direction: column; }
+      .contact-inner { grid-template-columns: 1fr; }
+    }
+  </style>
 </head>
 <body>
-  <h1>VetMediq</h1>
+
+<!-- NAV -->
+<nav>
+  <div class="logo">Vet<span>Mediq</span></div>
+  <ul>
+    <li><a href="#uslugi">Usługi</a></li>
+    <li><a href="#o-nas">O nas</a></li>
+    <li><a href="#zespol">Zespół</a></li>
+    <li><a href="#kontakt">Kontakt</a></li>
+  </ul>
+  <button class="nav-btn" onclick="document.getElementById('kontakt').scrollIntoView({behavior:'smooth'})">
+    Umów wizytę
+  </button>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-text">
+    <h1>Zdrowie Twojego zwierzaka<br>w <em>dobrych rękach</em></h1>
+    <p>Oferujemy kompleksową opiekę weterynaryjną – od profilaktyki po zaawansowane leczenie.
+       Twój pupil zasługuje na najlepszą opiekę.</p>
+    <a href="#kontakt" class="btn">Umów wizytę</a>
+    <a href="#uslugi" class="btn btn-outline">Nasze usługi</a>
+  </div>
+  <div class="hero-img">🐾</div>
+</section>
+
+<!-- STATS -->
+<div class="stats">
+  <div class="stat"><strong>12+</strong><span>lat doświadczenia</span></div>
+  <div class="stat"><strong>5 000+</strong><span>zadowolonych pacjentów</span></div>
+  <div class="stat"><strong>6</strong><span>specjalistów</span></div>
+  <div class="stat"><strong>7 dni</strong><span>w tygodniu</span></div>
+</div>
+
+<!-- SERVICES -->
+<section id="uslugi">
+  <h2 class="section-title">Nasze usługi</h2>
+  <p class="section-sub">Pełen zakres opieki weterynaryjnej dla Twojego pupila</p>
+  <div class="cards">
+    <div class="card">
+      <div class="card-icon">💉</div>
+      <h3>Szczepienia</h3>
+      <p>Kompleksowy program szczepień dla psów, kotów i małych zwierząt. Paszporty i dokumentacja.</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">🔬</div>
+      <h3>Diagnostyka</h3>
+      <p>USG, RTG, morfologia krwi oraz testy biochemiczne – wyniki na miejscu w krótkim czasie.</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">🏥</div>
+      <h3>Chirurgia</h3>
+      <p>Zabiegi operacyjne i kastracja w sterylnych warunkach. Pełna opieka przed- i pooperacyjna.</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">🦷</div>
+      <h3>Stomatologia</h3>
+      <p>Czyszczenie zębów, ekstrakcje, profilaktyka chorób jamy ustnej zwierząt.</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">🐾</div>
+      <h3>Dermatologia</h3>
+      <p>Leczenie alergii, chorób skóry i sierści. Testy alergologiczne i terapia.</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">🏠</div>
+      <h3>Wizyty domowe</h3>
+      <p>Dojeżdżamy do Twojego domu – idealne dla zwierząt stresujących się podróżą.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section id="o-nas">
+  <div class="about-inner">
+    <div class="about-img">🩺</div>
+    <div class="about-text">
+      <h2>Dlaczego VetMediq?</h2>
+      <p>Jesteśmy gabinetem weterynaryjnym z ponad 12-letnim doświadczeniem. Nasz zespół tworzą wykwalifikowani
+         specjaliści, dla których dobro zwierząt jest najwyższym priorytetem.</p>
+      <p>Wyposażeni w nowoczesny sprzęt diagnostyczny, zapewniamy szybką i trafną diagnostykę,
+         a co za tym idzie – skuteczne leczenie.</p>
+      <ul class="check-list">
+        <li>Nowoczesny sprzęt diagnostyczny</li>
+        <li>Indywidualne podejście do każdego pacjenta</li>
+        <li>Przyjazna atmosfera dla zwierząt i właścicieli</li>
+        <li>Przyjęcia nagłe 7 dni w tygodniu</li>
+        <li>Elektroniczna karta pacjenta i przypomnienia o wizytach</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- TEAM -->
+<section id="zespol">
+  <h2 class="section-title">Nasz zespół</h2>
+  <p class="section-sub">Poznaj lekarzy, którym powierzysz swojego pupila</p>
+  <div class="team">
+    <div class="member">
+      <div class="avatar">👨‍⚕️</div>
+      <h3>dr Marek Kowalski</h3>
+      <span>Chirurgia i ortopedia</span>
+      <p>15 lat praktyki. Specjalizacja w chirurgii małych zwierząt i ortopedii.</p>
+    </div>
+    <div class="member">
+      <div class="avatar">👩‍⚕️</div>
+      <h3>dr Anna Nowak</h3>
+      <span>Internista, dermatolog</span>
+      <p>Ekspert w chorobach wewnętrznych i dermatologii. Przyjazna i cierpliwa.</p>
+    </div>
+    <div class="member">
+      <div class="avatar">👩‍⚕️</div>
+      <h3>dr Karolina Wiśniewska</h3>
+      <span>Stomatologia weterynaryjna</span>
+      <p>Jedyna w regionie specjalistka od stomatologii weterynaryjnej.</p>
+    </div>
+    <div class="member">
+      <div class="avatar">👨‍⚕️</div>
+      <h3>dr Piotr Zając</h3>
+      <span>Egzotyczne zwierzęta</span>
+      <p>Leczenie gadów, ptaków, gryzoni i innych zwierząt egzotycznych.</p>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="kontakt">
+  <h2 class="section-title">Kontakt i rejestracja</h2>
+  <p class="section-sub">Skontaktuj się z nami lub umów wizytę online</p>
+  <div class="contact-inner">
+    <div class="contact-info">
+      <h3>Znajdź nas</h3>
+      <div class="info-row">
+        <div class="info-icon">📍</div>
+        <div class="info-text">
+          <strong>Adres</strong>
+          <span>ul. Zwierzęca 12, 00-001 Warszawa</span>
+        </div>
+      </div>
+      <div class="info-row">
+        <div class="info-icon">📞</div>
+        <div class="info-text">
+          <strong>Telefon</strong>
+          <span>+48 22 123 45 67</span>
+        </div>
+      </div>
+      <div class="info-row">
+        <div class="info-icon">✉️</div>
+        <div class="info-text">
+          <strong>E-mail</strong>
+          <span>kontakt@vetmediq.pl</span>
+        </div>
+      </div>
+      <h3 style="margin-top:2rem;">Godziny otwarcia</h3>
+      <table class="hours-table">
+        <tr><td>Poniedziałek – Piątek</td><td>8:00 – 20:00</td></tr>
+        <tr><td>Sobota</td><td>9:00 – 16:00</td></tr>
+        <tr><td>Niedziela</td><td>10:00 – 14:00</td></tr>
+        <tr><td>Nagłe przypadki</td><td>całą dobę</td></tr>
+      </table>
+    </div>
+
+    <form onsubmit="handleForm(event)">
+      <h3>Umów wizytę</h3>
+      <div class="form-group">
+        <label>Imię i nazwisko właściciela</label>
+        <input type="text" placeholder="Jan Kowalski" required>
+      </div>
+      <div class="form-group">
+        <label>Telefon</label>
+        <input type="tel" placeholder="+48 500 000 000" required>
+      </div>
+      <div class="form-group">
+        <label>Gatunek zwierzęcia</label>
+        <select required>
+          <option value="">Wybierz...</option>
+          <option>Pies</option>
+          <option>Kot</option>
+          <option>Królik</option>
+          <option>Ptak</option>
+          <option>Gad</option>
+          <option>Inne</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Preferowany termin</label>
+        <input type="date" required>
+      </div>
+      <div class="form-group">
+        <label>Opis problemu (opcjonalnie)</label>
+        <textarea placeholder="Opisz krótko powód wizyty..."></textarea>
+      </div>
+      <button type="submit" class="submit-btn">Wyślij zgłoszenie</button>
+    </form>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <span>© 2026 VetMediq. Wszelkie prawa zastrzeżone.</span>
+  <span>
+    <a href="tel:+48221234567">+48 22 123 45 67</a> &nbsp;|&nbsp;
+    <a href="mailto:kontakt@vetmediq.pl">kontakt@vetmediq.pl</a>
+  </span>
+</footer>
+
+<!-- TOAST -->
+<div class="toast" id="toast">Zgłoszenie wysłane! Skontaktujemy się wkrótce. 🐾</div>
+
+<script>
+  function handleForm(e) {
+    e.preventDefault();
+    const toast = document.getElementById('toast');
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 4000);
+    e.target.reset();
+  }
+
+  // Smooth scroll for all anchor links
+  document.querySelectorAll('a[href^="#"]').forEach(a => {
+    a.addEventListener('click', e => {
+      e.preventDefault();
+      document.querySelector(a.getAttribute('href'))?.scrollIntoView({ behavior: 'smooth' });
+    });
+  });
+</script>
 </body>
 </html>
