@@ -409,111 +409,113 @@
   const camera = new THREE.PerspectiveCamera(60, W / H, 0.1, 200);
   camera.position.set(0, 0, 22);
 
-  // ── CORE SPHERE ──────────────────────────────────────────────
-  const coreGeo = new THREE.SphereGeometry(2.2, 64, 64);
-  const coreMat = new THREE.MeshPhongMaterial({
-    color: 0x1e88e5, emissive: 0x1565c0, emissiveIntensity: 0.6,
-    transparent: true, opacity: 0.92, shininess: 120
-  });
-  const core = new THREE.Mesh(coreGeo, coreMat);
+  // ── PAW TEXTURE FACTORY ──────────────────────────────────────
+  function createPawTexture(fillColor, glowColor, size) {
+    const cv = document.createElement('canvas');
+    cv.width = cv.height = size;
+    const ctx = cv.getContext('2d');
+    const s = size / 128;
+
+    // soft glow halo
+    const grd = ctx.createRadialGradient(64*s, 72*s, 4*s, 64*s, 72*s, 62*s);
+    grd.addColorStop(0,   glowColor + 'cc');
+    grd.addColorStop(0.5, glowColor + '44');
+    grd.addColorStop(1,   glowColor + '00');
+    ctx.fillStyle = grd;
+    ctx.fillRect(0, 0, size, size);
+
+    ctx.fillStyle = fillColor;
+
+    // main pad
+    ctx.beginPath();
+    ctx.ellipse(64*s, 84*s, 26*s, 22*s, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    // toe pads
+    const toes = [
+      [30*s, 50*s, 14*s, 16*s, -0.35],
+      [53*s, 38*s, 14*s, 16*s, -0.1],
+      [76*s, 38*s, 14*s, 16*s,  0.1],
+      [99*s, 50*s, 14*s, 16*s,  0.35],
+    ];
+    toes.forEach(([x, y, rx, ry, rot]) => {
+      ctx.beginPath();
+      ctx.ellipse(x, y, rx, ry, rot, 0, Math.PI * 2);
+      ctx.fill();
+    });
+
+    return new THREE.CanvasTexture(cv);
+  }
+
+  const pawTexBig   = createPawTexture('#ffffff', '#90caf9', 256);
+  const pawTexBlue  = createPawTexture('#90caf9', '#1e88e5', 128);
+  const pawTexLight = createPawTexture('#bbdefb', '#42a5f5', 128);
+  const pawTexDim   = createPawTexture('#64b5f6', '#1565c0', 64);
+
+  // ── CENTRAL PAW SPRITE ───────────────────────────────────────
+  const coreMat = new THREE.SpriteMaterial({ map: pawTexBig, transparent: true, opacity: 0.95, depthWrite: false });
+  const core = new THREE.Sprite(coreMat);
+  core.scale.set(6, 6, 1);
   scene.add(core);
 
-  // glow halo around core
-  const haloGeo = new THREE.SphereGeometry(2.9, 32, 32);
-  const haloMat = new THREE.MeshBasicMaterial({
-    color: 0x42a5f5, transparent: true, opacity: 0.08, side: THREE.BackSide
-  });
-  scene.add(new THREE.Mesh(haloGeo, haloMat));
+  // glow behind core
+  const glowMat = new THREE.SpriteMaterial({ map: pawTexBig, transparent: true, opacity: 0.18, depthWrite: false });
+  const glow = new THREE.Sprite(glowMat);
+  glow.scale.set(9, 9, 1);
+  scene.add(glow);
 
-  // ── DNA HELIX ─────────────────────────────────────────────────
-  const helixGroup = new THREE.Group();
-  scene.add(helixGroup);
-
-  const blobMat = new THREE.MeshPhongMaterial({ color: 0x90caf9, emissive: 0x1e88e5, emissiveIntensity: 0.5, shininess: 80 });
-  const connMat = new THREE.MeshBasicMaterial({ color: 0x42a5f5, transparent: true, opacity: 0.45 });
-  const blobGeo = new THREE.SphereGeometry(0.22, 12, 12);
-
-  const STEPS = 38, RADIUS = 4.5, HEIGHT = 10;
-  const posA = [], posB = [];
-  for (let i = 0; i < STEPS; i++) {
-    const t = (i / STEPS) * Math.PI * 4;
-    const y = (i / STEPS) * HEIGHT - HEIGHT / 2;
-    posA.push(new THREE.Vector3(Math.cos(t) * RADIUS, y, Math.sin(t) * RADIUS));
-    posB.push(new THREE.Vector3(Math.cos(t + Math.PI) * RADIUS, y, Math.sin(t + Math.PI) * RADIUS));
-  }
-
-  posA.forEach(p => { const m = new THREE.Mesh(blobGeo, blobMat); m.position.copy(p); helixGroup.add(m); });
-  posB.forEach(p => {
-    const m = new THREE.Mesh(blobGeo, new THREE.MeshPhongMaterial({ color: 0xbbdefb, emissive: 0x1565c0, emissiveIntensity: 0.4, shininess: 80 }));
-    m.position.copy(p); helixGroup.add(m);
-  });
-
-  // cross-links every 3 steps
-  for (let i = 0; i < STEPS; i += 3) {
-    const a = posA[i], b = posB[i];
-    const dir = new THREE.Vector3().subVectors(b, a);
-    const len = dir.length();
-    const cyl = new THREE.Mesh(
-      new THREE.CylinderGeometry(0.07, 0.07, len, 6),
-      connMat
-    );
-    cyl.position.copy(a).addScaledVector(dir.normalize(), len / 2);
-    cyl.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), dir.normalize());
-    helixGroup.add(cyl);
-  }
-
-  // ── ORBITAL RINGS ─────────────────────────────────────────────
-  function makeRing(count, radius, tilt, hue) {
+  // ── ORBITAL RINGS OF PAWS ────────────────────────────────────
+  function makeRing(count, radius, tilt, tex, spriteSize) {
     const g = new THREE.Group();
-    const sm = new THREE.MeshBasicMaterial({ color: hue });
     for (let i = 0; i < count; i++) {
       const angle = (i / count) * Math.PI * 2;
-      const s = new THREE.Mesh(new THREE.SphereGeometry(0.13, 8, 8), sm);
-      s.position.set(Math.cos(angle) * radius, 0, Math.sin(angle) * radius);
-      g.add(s);
+      const mat = new THREE.SpriteMaterial({ map: tex, transparent: true, opacity: 0.85, depthWrite: false });
+      const sp = new THREE.Sprite(mat);
+      sp.scale.set(spriteSize, spriteSize, 1);
+      sp.position.set(Math.cos(angle) * radius, 0, Math.sin(angle) * radius);
+      // rotate each paw slightly for variety
+      sp.material.rotation = (i / count) * Math.PI * 2;
+      g.add(sp);
     }
     g.rotation.x = tilt;
     scene.add(g);
     return g;
   }
-  const ring1 = makeRing(60, 7.5, 0.4,   0x1e88e5);
-  const ring2 = makeRing(50, 9.0, 1.1,   0x42a5f5);
-  const ring3 = makeRing(40, 10.5, -0.7, 0x90caf9);
 
-  // ── STAR FIELD ────────────────────────────────────────────────
-  const starCount = 600;
-  const starPositions = new Float32Array(starCount * 3);
-  for (let i = 0; i < starCount * 3; i++) starPositions[i] = (Math.random() - 0.5) * 80;
-  const starGeo = new THREE.BufferGeometry();
-  starGeo.setAttribute('position', new THREE.BufferAttribute(starPositions, 3));
-  scene.add(new THREE.Points(starGeo, new THREE.PointsMaterial({ color: 0x90caf9, size: 0.18, transparent: true, opacity: 0.6 })));
+  const ring1 = makeRing(22, 7.5,  0.4,  pawTexBlue,  1.1);
+  const ring2 = makeRing(16, 9.0,  1.1,  pawTexLight, 0.9);
+  const ring3 = makeRing(12, 10.5, -0.7, pawTexDim,   0.75);
 
-  // ── FLOATING PARTICLES ────────────────────────────────────────
-  const floatCount = 80;
+  // ── FLOATING PAW PARTICLES ───────────────────────────────────
   const floatData = [];
-  for (let i = 0; i < floatCount; i++) {
+  for (let i = 0; i < 30; i++) {
     const theta = Math.random() * Math.PI * 2;
     const phi   = Math.acos(2 * Math.random() - 1);
     const r     = 5.5 + Math.random() * 5;
-    const mesh  = new THREE.Mesh(
-      new THREE.SphereGeometry(0.07 + Math.random() * 0.10, 6, 6),
-      new THREE.MeshBasicMaterial({ color: 0x64b5f6, transparent: true, opacity: 0.7 })
-    );
-    mesh.position.set(r * Math.sin(phi) * Math.cos(theta), r * Math.sin(phi) * Math.sin(theta), r * Math.cos(phi));
-    scene.add(mesh);
-    floatData.push({ mesh, speed: 0.3 + Math.random() * 0.7, offset: Math.random() * Math.PI * 2 });
+    const sz    = 0.35 + Math.random() * 0.45;
+    const mat   = new THREE.SpriteMaterial({ map: pawTexDim, transparent: true, opacity: 0.5 + Math.random() * 0.3, depthWrite: false });
+    mat.rotation = Math.random() * Math.PI * 2;
+    const sp = new THREE.Sprite(mat);
+    sp.scale.set(sz, sz, 1);
+    sp.position.set(r * Math.sin(phi) * Math.cos(theta), r * Math.sin(phi) * Math.sin(theta), r * Math.cos(phi));
+    scene.add(sp);
+    floatData.push({ sp, speed: 0.3 + Math.random() * 0.6, offset: Math.random() * Math.PI * 2 });
   }
 
-  // ── LIGHTS ────────────────────────────────────────────────────
-  scene.add(new THREE.AmbientLight(0xffffff, 0.4));
-  const dl = new THREE.DirectionalLight(0x90caf9, 1.5);
-  dl.position.set(5, 8, 5);
-  scene.add(dl);
+  // ── STAR FIELD ───────────────────────────────────────────────
+  const starPos = new Float32Array(500 * 3);
+  for (let i = 0; i < 500 * 3; i++) starPos[i] = (Math.random() - 0.5) * 80;
+  const starGeo = new THREE.BufferGeometry();
+  starGeo.setAttribute('position', new THREE.BufferAttribute(starPos, 3));
+  scene.add(new THREE.Points(starGeo, new THREE.PointsMaterial({ color: 0x90caf9, size: 0.15, transparent: true, opacity: 0.5 })));
+
+  // ── LIGHTS ───────────────────────────────────────────────────
+  scene.add(new THREE.AmbientLight(0xffffff, 0.6));
   const pl = new THREE.PointLight(0x1e88e5, 2, 30);
-  pl.position.set(0, 0, 5);
+  pl.position.set(0, 0, 6);
   scene.add(pl);
 
-  // ── MOUSE PARALLAX ────────────────────────────────────────────
+  // ── MOUSE PARALLAX ───────────────────────────────────────────
   let mx = 0, my = 0;
   wrap.addEventListener('mousemove', e => {
     const r = wrap.getBoundingClientRect();
@@ -521,33 +523,40 @@
     my = ((e.clientY - r.top)  / r.height - 0.5) * 2;
   });
 
-  // ── ANIMATE ───────────────────────────────────────────────────
+  // ── ANIMATE ──────────────────────────────────────────────────
   let t = 0;
   function animate() {
     requestAnimationFrame(animate);
     t += 0.012;
 
-    // pulsing core
-    const pulse = 1 + 0.04 * Math.sin(t * 2.5);
-    core.scale.setScalar(pulse);
-    coreMat.emissiveIntensity = 0.5 + 0.3 * Math.sin(t * 2.5);
+    // pulsing central paw
+    const pulse = 1 + 0.07 * Math.sin(t * 2.5);
+    core.scale.set(6 * pulse, 6 * pulse, 1);
+    coreMat.opacity = 0.85 + 0.1 * Math.sin(t * 2.5);
+    glow.scale.set(9 * pulse, 9 * pulse, 1);
+    glowMat.opacity = 0.10 + 0.08 * Math.sin(t * 2.5);
 
-    // helix spin + float
-    helixGroup.rotation.y = t * 0.35;
-    helixGroup.position.y = Math.sin(t * 0.6) * 0.4;
+    // slowly spin central paw
+    coreMat.rotation = t * 0.15;
+    glowMat.rotation = -t * 0.08;
 
-    // rings
-    ring1.rotation.y = t * 0.5;
-    ring2.rotation.y = -t * 0.35;
-    ring3.rotation.y = t * 0.22;
+    // rings spin
+    ring1.rotation.y = t * 0.45;
+    ring2.rotation.y = -t * 0.32;
+    ring3.rotation.y = t * 0.2;
 
-    // floating particles
-    floatData.forEach(({ mesh, speed, offset }) => {
-      mesh.position.y += Math.sin(t * speed + offset) * 0.008;
-      mesh.rotation.y += 0.01;
+    // each paw in ring rotates to face slightly different direction
+    ring1.children.forEach((sp, i) => { sp.material.rotation = t * 0.6 + (i / ring1.children.length) * Math.PI * 2; });
+    ring2.children.forEach((sp, i) => { sp.material.rotation = -t * 0.5 + (i / ring2.children.length) * Math.PI * 2; });
+    ring3.children.forEach((sp, i) => { sp.material.rotation = t * 0.4 + (i / ring3.children.length) * Math.PI * 2; });
+
+    // floating paws bob
+    floatData.forEach(({ sp, speed, offset }) => {
+      sp.position.y += Math.sin(t * speed + offset) * 0.007;
+      sp.material.rotation += 0.005;
     });
 
-    // point light pulse
+    // light pulse
     pl.intensity = 1.5 + Math.sin(t * 2) * 0.8;
 
     // mouse parallax
@@ -559,7 +568,6 @@
   }
   animate();
 
-  // resize
   window.addEventListener('resize', () => {
     const W2 = wrap.clientWidth, H2 = wrap.clientHeight;
     renderer.setSize(W2, H2);
