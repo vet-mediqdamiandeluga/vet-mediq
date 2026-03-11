@@ -172,6 +172,21 @@
     }
     .toast.show { opacity: 1; }
 
+    /* F-16 */
+    #f16-wrap {
+      position: fixed;
+      top: 18%;
+      left: 0;
+      z-index: 500;
+      pointer-events: none;
+      animation: f16fly 9s linear infinite;
+      animation-delay: 1.5s;
+    }
+    @keyframes f16fly {
+      from { transform: translateX(110vw); }
+      to   { transform: translateX(-480px); }
+    }
+
     /* RESPONSIVE */
     @media (max-width: 768px) {
       nav ul { display: none; }
@@ -392,6 +407,11 @@
   </span>
 </footer>
 
+<!-- F-16 -->
+<div id="f16-wrap">
+  <canvas id="f16canvas" width="460" height="120"></canvas>
+</div>
+
 <!-- TOAST -->
 <div class="toast" id="toast">Zgłoszenie wysłane! Skontaktujemy się wkrótce. 🐾</div>
 
@@ -580,6 +600,125 @@
 </script>
 
 <script>
+  // ── F-16 ────────────────────────────────────────────────────
+  (function() {
+    const cv  = document.getElementById('f16canvas');
+    const ctx = cv.getContext('2d');
+    // plane center
+    const cx = 155, cy = 60;
+
+    ctx.save();
+    ctx.translate(cx, cy);
+
+    // — contrail (extends to the right = behind the jet flying left)
+    const trail = ctx.createLinearGradient(60, 0, 300, 0);
+    trail.addColorStop(0,   'rgba(200,220,255,0.75)');
+    trail.addColorStop(0.4, 'rgba(200,220,255,0.3)');
+    trail.addColorStop(1,   'rgba(200,220,255,0)');
+    // two thin contrail lines
+    [-6, 6].forEach(dy => {
+      ctx.beginPath();
+      ctx.strokeStyle = trail;
+      ctx.lineWidth = 2.5;
+      ctx.moveTo(62, dy);
+      ctx.lineTo(300, dy);
+      ctx.stroke();
+    });
+
+    // — afterburner glow
+    const burn = ctx.createRadialGradient(68, 0, 0, 68, 0, 22);
+    burn.addColorStop(0,   'rgba(255,200,50,0.95)');
+    burn.addColorStop(0.35,'rgba(255,100,0,0.7)');
+    burn.addColorStop(1,   'rgba(255,50,0,0)');
+    ctx.fillStyle = burn;
+    ctx.beginPath();
+    ctx.ellipse(76, 0, 22, 9, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    const body  = '#0d1b4b';
+    const wing  = '#142060';
+    const panel = '#1a2a70';
+
+    // — main fuselage
+    ctx.fillStyle = body;
+    ctx.beginPath();
+    ctx.moveTo(-95, 0);      // nose tip
+    ctx.lineTo(-75, -7);
+    ctx.lineTo(-50, -10);
+    ctx.lineTo(-28, -13);    // canopy front
+    ctx.lineTo(-10, -15);    // canopy peak
+    ctx.lineTo(8,  -12);     // canopy rear
+    ctx.lineTo(22, -9);
+    ctx.lineTo(45, -7);
+    ctx.lineTo(65,  0);      // tail center
+    ctx.lineTo(45,  7);
+    ctx.lineTo(20,  9);
+    ctx.lineTo(0,   11);     // intake bulge
+    ctx.lineTo(-20,  9);
+    ctx.lineTo(-75,  6);
+    ctx.closePath();
+    ctx.fill();
+
+    // intake scoop detail
+    ctx.fillStyle = '#08122e';
+    ctx.beginPath();
+    ctx.ellipse(-15, 10, 14, 5, 0.15, 0, Math.PI);
+    ctx.fill();
+
+    // — main delta wing (upper)
+    ctx.fillStyle = wing;
+    ctx.beginPath();
+    ctx.moveTo(-8, -9);
+    ctx.lineTo(38, -7);
+    ctx.lineTo(18, -46);
+    ctx.closePath();
+    ctx.fill();
+
+    // — main delta wing (lower)
+    ctx.beginPath();
+    ctx.moveTo(-8,  9);
+    ctx.lineTo(38,  7);
+    ctx.lineTo(18,  46);
+    ctx.closePath();
+    ctx.fill();
+
+    // — vertical tail fin
+    ctx.fillStyle = body;
+    ctx.beginPath();
+    ctx.moveTo(18, -8);
+    ctx.lineTo(55, -8);
+    ctx.lineTo(46, -42);
+    ctx.lineTo(22, -28);
+    ctx.closePath();
+    ctx.fill();
+
+    // — horizontal stabilizers
+    ctx.fillStyle = wing;
+    ctx.beginPath();
+    ctx.moveTo(38,  6); ctx.lineTo(64,  6); ctx.lineTo(58, 24); ctx.closePath(); ctx.fill();
+    ctx.beginPath();
+    ctx.moveTo(38, -6); ctx.lineTo(64, -6); ctx.lineTo(58,-24); ctx.closePath(); ctx.fill();
+
+    // — panel line on fuselage
+    ctx.strokeStyle = panel;
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(-70, -4); ctx.lineTo(40, -5); ctx.stroke();
+
+    // — cockpit glass
+    ctx.fillStyle = 'rgba(100,180,255,0.65)';
+    ctx.beginPath();
+    ctx.ellipse(-20, -14, 20, 5, -0.08, 0, Math.PI * 2);
+    ctx.fill();
+    // cockpit highlight
+    ctx.fillStyle = 'rgba(200,235,255,0.4)';
+    ctx.beginPath();
+    ctx.ellipse(-24, -16, 10, 2.5, -0.08, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.restore();
+  })();
+
   function handleForm(e) {
     e.preventDefault();
     const toast = document.getElementById('toast');
