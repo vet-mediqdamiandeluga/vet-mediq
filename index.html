@@ -417,26 +417,28 @@
     const s = size / 128;
 
     // soft glow halo
-    const grd = ctx.createRadialGradient(64*s, 72*s, 4*s, 64*s, 72*s, 62*s);
-    grd.addColorStop(0,   glowColor + 'cc');
-    grd.addColorStop(0.5, glowColor + '44');
+    const grd = ctx.createRadialGradient(64*s, 72*s, 4*s, 64*s, 72*s, 60*s);
+    grd.addColorStop(0,   glowColor + 'bb');
+    grd.addColorStop(0.55, glowColor + '33');
     grd.addColorStop(1,   glowColor + '00');
     ctx.fillStyle = grd;
     ctx.fillRect(0, 0, size, size);
 
+    // crisp fill – no shadow blur
     ctx.fillStyle = fillColor;
+    ctx.shadowBlur = 0;
 
     // main pad
     ctx.beginPath();
-    ctx.ellipse(64*s, 84*s, 26*s, 22*s, 0, 0, Math.PI * 2);
+    ctx.ellipse(64*s, 86*s, 27*s, 23*s, 0, 0, Math.PI * 2);
     ctx.fill();
 
     // toe pads
     const toes = [
-      [30*s, 50*s, 14*s, 16*s, -0.35],
-      [53*s, 38*s, 14*s, 16*s, -0.1],
-      [76*s, 38*s, 14*s, 16*s,  0.1],
-      [99*s, 50*s, 14*s, 16*s,  0.35],
+      [28*s, 52*s, 15*s, 17*s, -0.35],
+      [52*s, 38*s, 15*s, 17*s, -0.1],
+      [77*s, 38*s, 15*s, 17*s,  0.1],
+      [101*s, 52*s, 15*s, 17*s,  0.35],
     ];
     toes.forEach(([x, y, rx, ry, rot]) => {
       ctx.beginPath();
@@ -447,10 +449,10 @@
     return new THREE.CanvasTexture(cv);
   }
 
-  const pawTexBig   = createPawTexture('#ffffff', '#90caf9', 256);
-  const pawTexBlue  = createPawTexture('#90caf9', '#1e88e5', 128);
-  const pawTexLight = createPawTexture('#bbdefb', '#42a5f5', 128);
-  const pawTexDim   = createPawTexture('#64b5f6', '#1565c0', 64);
+  const pawTexBig   = createPawTexture('#1e88e5', '#42a5f5', 512);
+  const pawTexBlue  = createPawTexture('#1565c0', '#1e88e5', 256);
+  const pawTexLight = createPawTexture('#42a5f5', '#90caf9', 256);
+  const pawTexDim   = createPawTexture('#1e88e5', '#1565c0', 256);
 
   // ── CENTRAL PAW SPRITE ───────────────────────────────────────
   const coreMat = new THREE.SpriteMaterial({ map: pawTexBig, transparent: true, opacity: 0.95, depthWrite: false });
