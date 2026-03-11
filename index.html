@@ -4,736 +4,1161 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>VetMediq – Gabinet Weterynaryjny</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --green:  #1565c0;
-      --green2: #1e88e5;
-      --light:  #e3f2fd;
-      --dark:   #0d2137;
-      --gray:   #f5f5f5;
-      --text:   #333;
-      --radius: 12px;
+      --teal:    #0b8f7a;
+      --teal2:   #13b39a;
+      --teal3:   #d0f4ef;
+      --navy:    #0d2137;
+      --navy2:   #153248;
+      --accent:  #f4a435;
+      --light:   #f0faf8;
+      --gray:    #f7f8fa;
+      --text:    #2c3e50;
+      --muted:   #6b7a8d;
+      --white:   #ffffff;
+      --radius:  16px;
+      --shadow:  0 4px 24px rgba(11,143,122,.10);
     }
 
-    body { font-family: 'Segoe UI', sans-serif; color: var(--text); line-height: 1.6; }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Inter', sans-serif; color: var(--text); line-height: 1.7; overflow-x: hidden; }
 
-    /* NAV */
+    /* ── SCROLLBAR ── */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: #f0f0f0; }
+    ::-webkit-scrollbar-thumb { background: var(--teal2); border-radius: 3px; }
+
+    /* ── NAV ── */
     nav {
-      position: sticky; top: 0; z-index: 100;
+      position: fixed; top: 0; left: 0; right: 0; z-index: 200;
       display: flex; align-items: center; justify-content: space-between;
-      padding: 0 5%; height: 64px;
-      background: #fff; box-shadow: 0 2px 8px rgba(0,0,0,.1);
+      padding: 0 6%; height: 72px;
+      background: rgba(255,255,255,0.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(11,143,122,.10);
+      transition: box-shadow .3s;
     }
-    .logo { font-size: 1.5rem; font-weight: 700; color: var(--green); letter-spacing: 1px; }
-    .logo span { color: var(--green2); }
-    nav ul { list-style: none; display: flex; gap: 2rem; }
-    nav a { text-decoration: none; color: var(--text); font-weight: 500; transition: color .2s; }
-    nav a:hover { color: var(--green); }
-    .nav-btn {
-      background: var(--green); color: #fff; border: none; padding: .5rem 1.2rem;
-      border-radius: 6px; cursor: pointer; font-size: .95rem; transition: background .2s;
+    nav.scrolled { box-shadow: 0 2px 20px rgba(0,0,0,.08); }
+    .logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+    .logo-icon { width: 40px; height: 40px; background: linear-gradient(135deg,var(--teal),var(--teal2)); border-radius: 10px; display: flex; align-items: center; justify-content: center; }
+    .logo-icon svg { width: 24px; height: 24px; fill: #fff; }
+    .logo-text { font-size: 1.4rem; font-weight: 800; color: var(--navy); letter-spacing: -.5px; }
+    .logo-text span { color: var(--teal); }
+    nav ul { list-style: none; display: flex; gap: 2.2rem; }
+    nav a { text-decoration: none; color: var(--text); font-weight: 500; font-size: .93rem; transition: color .2s; position: relative; }
+    nav a::after { content:''; position:absolute; bottom:-4px; left:0; width:0; height:2px; background:var(--teal2); transition:width .2s; }
+    nav a:hover { color: var(--teal); }
+    nav a:hover::after { width: 100%; }
+    .nav-cta {
+      background: linear-gradient(135deg,var(--teal),var(--teal2));
+      color: #fff; border: none; padding: .55rem 1.4rem;
+      border-radius: 50px; cursor: pointer; font-size: .9rem; font-weight: 600;
+      transition: transform .2s, box-shadow .2s; text-decoration: none;
+      box-shadow: 0 4px 14px rgba(11,143,122,.3);
     }
-    .nav-btn:hover { background: var(--dark); }
+    .nav-cta:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(11,143,122,.4); }
+    .hamburger { display: none; flex-direction: column; gap: 5px; cursor: pointer; background: none; border: none; padding: 4px; }
+    .hamburger span { display: block; width: 24px; height: 2px; background: var(--navy); border-radius: 2px; transition: .3s; }
 
-    /* HERO */
+    /* ── HERO ── */
     .hero {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 80px 5%; gap: 40px;
-      background: linear-gradient(135deg, var(--light) 0%, #fff 100%);
-      min-height: 90vh;
+      min-height: 100vh;
+      background: linear-gradient(160deg, var(--light) 0%, #e8f8f5 50%, #fff 100%);
+      display: flex; align-items: center;
+      padding: 100px 6% 60px;
+      position: relative; overflow: hidden;
     }
-    .hero-text { max-width: 560px; }
-    .hero-text h1 { font-size: clamp(2rem, 4vw, 3rem); color: var(--dark); line-height: 1.2; margin-bottom: 1rem; }
-    .hero-text h1 em { font-style: normal; color: var(--green); }
-    .hero-text p { font-size: 1.1rem; color: #555; margin-bottom: 2rem; }
+    .hero::before {
+      content:''; position: absolute; top: -120px; right: -120px;
+      width: 500px; height: 500px;
+      background: radial-gradient(circle, rgba(19,179,154,.12) 0%, transparent 70%);
+      border-radius: 50%;
+    }
+    .hero::after {
+      content:''; position: absolute; bottom: -80px; left: 10%;
+      width: 300px; height: 300px;
+      background: radial-gradient(circle, rgba(244,164,53,.10) 0%, transparent 70%);
+      border-radius: 50%;
+    }
+    .hero-inner { display: flex; align-items: center; gap: 60px; width: 100%; max-width: 1200px; margin: 0 auto; }
+    .hero-text { flex: 1; position: relative; z-index: 1; }
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: rgba(11,143,122,.1); color: var(--teal);
+      padding: .4rem 1rem; border-radius: 50px; font-size: .82rem; font-weight: 600;
+      margin-bottom: 1.5rem; border: 1px solid rgba(11,143,122,.2);
+    }
+    .hero-badge::before { content:'●'; font-size: .5rem; animation: blink 1.5s infinite; }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
+    .hero-text h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2.4rem, 4.5vw, 3.6rem);
+      color: var(--navy); line-height: 1.15; margin-bottom: 1.2rem;
+      letter-spacing: -.5px;
+    }
+    .hero-text h1 em { font-style: normal; color: var(--teal); }
+    .hero-text p { font-size: 1.1rem; color: var(--muted); margin-bottom: 2.2rem; max-width: 480px; }
+    .hero-btns { display: flex; gap: 1rem; flex-wrap: wrap; }
     .btn {
-      display: inline-block; padding: .8rem 2rem;
-      background: var(--green); color: #fff; border-radius: 8px;
-      text-decoration: none; font-weight: 600; transition: background .2s, transform .15s;
-    }
-    .btn:hover { background: var(--dark); transform: translateY(-2px); }
-    .btn-outline {
-      background: transparent; border: 2px solid var(--green); color: var(--green);
-      margin-left: 1rem;
-    }
-    .btn-outline:hover { background: var(--green); color: #fff; }
-    .hero-canvas-wrap {
-      flex-shrink: 0; width: 460px; height: 460px; position: relative;
-    }
-    .hero-canvas-wrap canvas { display: block; }
-
-    /* SECTION BASE */
-    section { padding: 80px 5%; }
-    .section-title { text-align: center; font-size: 2rem; color: var(--dark); margin-bottom: .5rem; }
-    .section-sub  { text-align: center; color: #666; margin-bottom: 3rem; }
-
-    /* STATS */
-    .stats {
-      background: var(--green); color: #fff;
-      display: flex; justify-content: space-around; flex-wrap: wrap; padding: 50px 5%;
-    }
-    .stat { text-align: center; padding: 1rem 2rem; }
-    .stat strong { display: block; font-size: 2.5rem; font-weight: 700; }
-    .stat span { font-size: .95rem; opacity: .85; }
-
-    /* SERVICES */
-    #uslugi { background: var(--gray); }
-    .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.5rem; }
-    .card {
-      background: #fff; border-radius: var(--radius); padding: 2rem 1.5rem;
-      box-shadow: 0 2px 12px rgba(0,0,0,.07); text-align: center;
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: .85rem 2rem; border-radius: 50px;
+      font-weight: 600; font-size: .95rem; text-decoration: none;
       transition: transform .2s, box-shadow .2s;
     }
-    .card:hover { transform: translateY(-6px); box-shadow: 0 8px 24px rgba(0,0,0,.12); }
-    .card-icon { font-size: 3rem; margin-bottom: 1rem; }
-    .card h3 { color: var(--green); margin-bottom: .5rem; font-size: 1.15rem; }
-    .card p { font-size: .9rem; color: #555; }
-
-    /* ABOUT */
-    .about-inner {
-      display: flex; gap: 60px; align-items: center; flex-wrap: wrap;
+    .btn-primary {
+      background: linear-gradient(135deg,var(--teal),var(--teal2));
+      color: #fff; box-shadow: 0 6px 20px rgba(11,143,122,.35);
     }
-    .about-img {
-      flex: 0 0 340px; height: 340px;
+    .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 10px 28px rgba(11,143,122,.45); }
+    .btn-secondary {
+      background: #fff; color: var(--teal);
+      border: 2px solid var(--teal3); box-shadow: var(--shadow);
+    }
+    .btn-secondary:hover { border-color: var(--teal2); transform: translateY(-2px); }
+    .hero-trust { display: flex; align-items: center; gap: 1.5rem; margin-top: 2.5rem; flex-wrap: wrap; }
+    .trust-avatars { display: flex; }
+    .trust-avatars span {
+      width: 36px; height: 36px; border-radius: 50%; border: 2px solid #fff;
+      background: linear-gradient(135deg, var(--teal), var(--teal2));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1rem; margin-left: -8px;
+    }
+    .trust-avatars span:first-child { margin-left: 0; }
+    .trust-text { font-size: .85rem; color: var(--muted); }
+    .trust-text strong { color: var(--navy); display: block; }
+    .trust-stars { color: var(--accent); font-size: .95rem; }
+
+    .hero-visual { flex-shrink: 0; width: 500px; position: relative; z-index: 1; }
+    .hero-canvas-wrap { width: 500px; height: 500px; }
+    .hero-canvas-wrap canvas { display: block; }
+
+    /* ── MARQUEE ── */
+    .marquee-wrap {
+      background: linear-gradient(135deg, var(--navy), var(--navy2));
+      padding: 18px 0; overflow: hidden; white-space: nowrap;
+    }
+    .marquee-track {
+      display: inline-flex; gap: 3rem; animation: marquee 30s linear infinite;
+    }
+    .marquee-item {
+      display: inline-flex; align-items: center; gap: .7rem;
+      color: rgba(255,255,255,.75); font-size: .88rem; font-weight: 500;
+    }
+    .marquee-item svg { width: 18px; height: 18px; fill: var(--teal2); flex-shrink: 0; }
+    @keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+    /* ── STATS ── */
+    .stats {
+      padding: 70px 6%;
+      background: #fff;
+    }
+    .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 2rem; max-width: 1100px; margin: 0 auto; }
+    .stat-card {
+      text-align: center; padding: 2.5rem 1.5rem;
       background: var(--light); border-radius: var(--radius);
+      border: 1px solid rgba(11,143,122,.12);
+      transition: transform .2s, box-shadow .2s;
+    }
+    .stat-card:hover { transform: translateY(-6px); box-shadow: var(--shadow); }
+    .stat-icon { font-size: 2.5rem; margin-bottom: .8rem; }
+    .stat-num { font-size: 2.8rem; font-weight: 800; color: var(--teal); font-family: 'Playfair Display', serif; line-height: 1; }
+    .stat-label { font-size: .9rem; color: var(--muted); margin-top: .4rem; font-weight: 500; }
+
+    /* ── SERVICES ── */
+    #uslugi { background: var(--gray); padding: 90px 6%; }
+    .section-header { text-align: center; margin-bottom: 3.5rem; }
+    .section-tag {
+      display: inline-block; background: var(--teal3); color: var(--teal);
+      font-size: .78rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase;
+      padding: .35rem .9rem; border-radius: 50px; margin-bottom: 1rem;
+    }
+    .section-title { font-family: 'Playfair Display', serif; font-size: 2.2rem; color: var(--navy); margin-bottom: .6rem; }
+    .section-sub { color: var(--muted); font-size: 1rem; }
+    .services-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.8rem; max-width: 1100px; margin: 0 auto; }
+    .service-card {
+      background: #fff; border-radius: var(--radius); padding: 2.2rem 1.8rem;
+      box-shadow: 0 2px 16px rgba(0,0,0,.05);
+      border: 1px solid rgba(0,0,0,.04);
+      transition: transform .25s, box-shadow .25s, border-color .25s;
+      position: relative; overflow: hidden;
+    }
+    .service-card::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+      background: linear-gradient(90deg, var(--teal), var(--teal2));
+      transform: scaleX(0); transform-origin: left;
+      transition: transform .3s;
+    }
+    .service-card:hover { transform: translateY(-8px); box-shadow: 0 12px 32px rgba(11,143,122,.13); border-color: var(--teal3); }
+    .service-card:hover::before { transform: scaleX(1); }
+    .service-icon {
+      width: 60px; height: 60px; border-radius: 14px;
+      background: var(--light); display: flex; align-items: center; justify-content: center;
+      font-size: 1.8rem; margin-bottom: 1.2rem;
+      transition: background .3s;
+    }
+    .service-card:hover .service-icon { background: var(--teal3); }
+    .service-card h3 { color: var(--navy); font-size: 1.05rem; font-weight: 700; margin-bottom: .5rem; }
+    .service-card p { font-size: .88rem; color: var(--muted); line-height: 1.6; }
+    .service-link { display: inline-flex; align-items: center; gap: 4px; margin-top: 1rem; font-size: .85rem; color: var(--teal); font-weight: 600; text-decoration: none; transition: gap .2s; }
+    .service-link:hover { gap: 8px; }
+
+    /* ── ANIMALS STRIP ── */
+    .animals-strip {
+      background: linear-gradient(135deg, var(--teal), var(--teal2));
+      padding: 60px 6%;
+    }
+    .animals-inner { max-width: 1100px; margin: 0 auto; display: flex; align-items: center; gap: 60px; }
+    .animals-text { color: #fff; flex: 1; }
+    .animals-text h2 { font-family: 'Playfair Display', serif; font-size: 2rem; margin-bottom: 1rem; }
+    .animals-text p { opacity: .85; font-size: .98rem; max-width: 420px; line-height: 1.7; }
+    .animals-icons { display: flex; gap: 1.2rem; flex-wrap: wrap; }
+    .animal-pill {
+      background: rgba(255,255,255,.15); backdrop-filter: blur(8px);
+      border: 1px solid rgba(255,255,255,.25); border-radius: 50px;
+      padding: .7rem 1.4rem; display: flex; align-items: center; gap: .6rem;
+      color: #fff; font-size: .9rem; font-weight: 500;
+      transition: background .2s, transform .2s;
+    }
+    .animal-pill:hover { background: rgba(255,255,255,.25); transform: translateY(-3px); }
+    .animal-pill span { font-size: 1.4rem; }
+
+    /* ── ABOUT ── */
+    #o-nas { padding: 90px 6%; background: #fff; }
+    .about-inner { display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center; max-width: 1100px; margin: 0 auto; }
+    .about-visual { position: relative; }
+    .about-img-main {
+      border-radius: 24px; overflow: hidden; position: relative;
+      background: var(--light); height: 420px;
       display: flex; align-items: center; justify-content: center;
-      font-size: 9rem;
     }
-    .about-text h2 { font-size: 1.8rem; color: var(--dark); margin-bottom: 1rem; }
-    .about-text p { color: #555; margin-bottom: 1rem; }
-    .check-list { list-style: none; margin-top: 1rem; }
-    .check-list li { padding: .4rem 0; color: #444; }
-    .check-list li::before { content: "✔ "; color: var(--green); font-weight: 700; }
-
-    /* TEAM */
-    #zespol { background: var(--gray); }
-    .team { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.5rem; }
-    .member {
-      background: #fff; border-radius: var(--radius); padding: 2rem 1rem;
-      text-align: center; box-shadow: 0 2px 12px rgba(0,0,0,.07);
+    .about-svg-wrap { width: 100%; height: 100%; }
+    .about-badge-float {
+      position: absolute; bottom: -20px; right: -20px;
+      background: #fff; border-radius: var(--radius); padding: 1.2rem 1.5rem;
+      box-shadow: 0 8px 32px rgba(0,0,0,.12);
+      display: flex; align-items: center; gap: 1rem;
     }
-    .avatar {
-      width: 90px; height: 90px; border-radius: 50%;
-      background: var(--green2); margin: 0 auto 1rem;
+    .about-badge-float .badge-icon { font-size: 2rem; }
+    .about-badge-float strong { display: block; font-size: 1.3rem; color: var(--teal); font-weight: 800; }
+    .about-badge-float span { font-size: .8rem; color: var(--muted); }
+    .about-badge-float2 {
+      position: absolute; top: -20px; left: -20px;
+      background: linear-gradient(135deg, var(--teal), var(--teal2));
+      color: #fff; border-radius: var(--radius); padding: 1rem 1.3rem;
+      box-shadow: 0 8px 24px rgba(11,143,122,.3);
+      font-size: .85rem; font-weight: 600; text-align: center;
+    }
+    .about-badge-float2 strong { font-size: 1.4rem; display: block; font-family: 'Playfair Display', serif; }
+    .about-text h2 { font-family: 'Playfair Display', serif; font-size: 2.1rem; color: var(--navy); margin-bottom: 1rem; line-height: 1.2; }
+    .about-text > p { color: var(--muted); margin-bottom: 1.5rem; }
+    .check-list { list-style: none; display: flex; flex-direction: column; gap: .8rem; margin-bottom: 2rem; }
+    .check-list li { display: flex; align-items: flex-start; gap: .8rem; font-size: .93rem; color: var(--text); }
+    .check-icon {
+      width: 22px; height: 22px; border-radius: 50%;
+      background: var(--teal3); color: var(--teal);
       display: flex; align-items: center; justify-content: center;
-      font-size: 2.5rem; color: #fff;
+      font-size: .75rem; font-weight: 700; flex-shrink: 0; margin-top: 2px;
     }
-    .member h3 { color: var(--dark); margin-bottom: .25rem; }
-    .member span { font-size: .85rem; color: var(--green); font-weight: 600; }
-    .member p { font-size: .85rem; color: #666; margin-top: .5rem; }
 
-    /* CONTACT */
-    .contact-inner { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: start; }
-    .contact-info h3 { font-size: 1.4rem; color: var(--dark); margin-bottom: 1.5rem; }
-    .info-row { display: flex; gap: 1rem; margin-bottom: 1.2rem; align-items: flex-start; }
-    .info-icon { font-size: 1.4rem; flex-shrink: 0; }
-    .info-text strong { display: block; color: var(--dark); }
-    .info-text span { font-size: .9rem; color: #555; }
-    .hours-table { width: 100%; border-collapse: collapse; margin-top: 1rem; font-size: .9rem; }
-    .hours-table td { padding: .4rem .6rem; border-bottom: 1px solid #eee; }
-    .hours-table td:last-child { text-align: right; color: var(--green); font-weight: 600; }
+    /* ── TEAM ── */
+    #zespol { padding: 90px 6%; background: var(--gray); }
+    .team-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5rem; max-width: 1100px; margin: 0 auto; }
+    .member-card {
+      background: #fff; border-radius: var(--radius);
+      overflow: hidden; box-shadow: 0 2px 16px rgba(0,0,0,.06);
+      transition: transform .25s, box-shadow .25s;
+    }
+    .member-card:hover { transform: translateY(-8px); box-shadow: 0 12px 32px rgba(0,0,0,.12); }
+    .member-top {
+      background: linear-gradient(135deg, var(--teal), var(--teal2));
+      padding: 2rem 1rem 1.5rem; text-align: center;
+    }
+    .member-avatar {
+      width: 80px; height: 80px; border-radius: 50%;
+      border: 3px solid rgba(255,255,255,.4);
+      background: rgba(255,255,255,.2);
+      margin: 0 auto .8rem;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 2.2rem;
+    }
+    .member-top h3 { color: #fff; font-size: .98rem; font-weight: 700; }
+    .member-bottom { padding: 1.2rem; text-align: center; }
+    .member-role { font-size: .8rem; color: var(--teal); font-weight: 700; text-transform: uppercase; letter-spacing: .8px; margin-bottom: .5rem; }
+    .member-bio { font-size: .83rem; color: var(--muted); line-height: 1.6; }
 
-    form { background: var(--gray); padding: 2rem; border-radius: var(--radius); }
-    form h3 { font-size: 1.4rem; color: var(--dark); margin-bottom: 1.5rem; }
-    .form-group { margin-bottom: 1rem; }
-    label { display: block; font-size: .85rem; font-weight: 600; color: #444; margin-bottom: .35rem; }
+    /* ── TESTIMONIALS ── */
+    #opinie { padding: 90px 6%; background: #fff; }
+    .testimonials-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.8rem; max-width: 1100px; margin: 0 auto; }
+    .testimonial-card {
+      background: var(--gray); border-radius: var(--radius);
+      padding: 2rem; border: 1px solid rgba(0,0,0,.04);
+      transition: transform .2s, box-shadow .2s;
+      position: relative;
+    }
+    .testimonial-card:hover { transform: translateY(-6px); box-shadow: var(--shadow); }
+    .quote-icon {
+      font-size: 3rem; color: var(--teal3); line-height: 1;
+      font-family: Georgia, serif; margin-bottom: .5rem;
+    }
+    .testimonial-card p { font-size: .9rem; color: var(--text); line-height: 1.7; margin-bottom: 1.5rem; font-style: italic; }
+    .testimonial-author { display: flex; align-items: center; gap: .8rem; }
+    .author-avatar {
+      width: 44px; height: 44px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--teal), var(--teal2));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.3rem; flex-shrink: 0;
+    }
+    .author-name { font-weight: 700; font-size: .88rem; color: var(--navy); }
+    .author-pet { font-size: .78rem; color: var(--muted); }
+    .stars { color: var(--accent); font-size: .85rem; margin-bottom: .3rem; }
+
+    /* ── CONTACT ── */
+    #kontakt { padding: 90px 6%; background: var(--gray); }
+    .contact-grid { display: grid; grid-template-columns: 1fr 1.3fr; gap: 60px; max-width: 1100px; margin: 0 auto; }
+    .contact-info h3 { font-family: 'Playfair Display', serif; font-size: 1.6rem; color: var(--navy); margin-bottom: 2rem; }
+    .info-card {
+      display: flex; align-items: flex-start; gap: 1rem;
+      background: #fff; padding: 1.2rem 1.4rem; border-radius: 12px;
+      margin-bottom: 1rem; box-shadow: 0 2px 10px rgba(0,0,0,.05);
+    }
+    .info-icon-wrap {
+      width: 44px; height: 44px; border-radius: 10px;
+      background: var(--teal3); display: flex; align-items: center;
+      justify-content: center; font-size: 1.3rem; flex-shrink: 0;
+    }
+    .info-card strong { display: block; color: var(--navy); font-size: .9rem; font-weight: 700; margin-bottom: .15rem; }
+    .info-card span { font-size: .85rem; color: var(--muted); }
+    .hours-box { background: #fff; border-radius: 12px; padding: 1.4rem; margin-top: 1.5rem; box-shadow: 0 2px 10px rgba(0,0,0,.05); }
+    .hours-box h4 { font-size: .9rem; font-weight: 700; color: var(--navy); margin-bottom: 1rem; }
+    .hours-row { display: flex; justify-content: space-between; padding: .5rem 0; border-bottom: 1px solid #f0f0f0; font-size: .85rem; }
+    .hours-row:last-child { border-bottom: none; }
+    .hours-row .time { color: var(--teal); font-weight: 600; }
+    .hours-row.emergency { color: var(--accent); font-weight: 600; }
+    .hours-row.emergency .time { color: var(--accent); }
+
+    .contact-form { background: #fff; border-radius: var(--radius); padding: 2.5rem; box-shadow: var(--shadow); }
+    .contact-form h3 { font-family: 'Playfair Display', serif; font-size: 1.5rem; color: var(--navy); margin-bottom: .4rem; }
+    .contact-form p { font-size: .88rem; color: var(--muted); margin-bottom: 1.8rem; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .form-group { margin-bottom: 1.1rem; }
+    label { display: block; font-size: .82rem; font-weight: 600; color: var(--navy); margin-bottom: .4rem; }
     input, select, textarea {
-      width: 100%; padding: .7rem 1rem; border: 1px solid #ddd;
-      border-radius: 8px; font-size: .95rem; outline: none;
-      transition: border-color .2s;
+      width: 100%; padding: .75rem 1rem;
+      border: 1.5px solid #e8edf2; border-radius: 10px;
+      font-size: .9rem; font-family: inherit; outline: none;
+      transition: border-color .2s, box-shadow .2s; color: var(--text);
+      background: #fafbfc;
     }
-    input:focus, select:focus, textarea:focus { border-color: var(--green); }
-    textarea { resize: vertical; min-height: 100px; }
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--teal2);
+      box-shadow: 0 0 0 3px rgba(11,143,122,.08);
+      background: #fff;
+    }
+    textarea { resize: vertical; min-height: 110px; }
     .submit-btn {
-      width: 100%; padding: .85rem; background: var(--green); color: #fff;
-      border: none; border-radius: 8px; font-size: 1rem; font-weight: 600;
-      cursor: pointer; transition: background .2s;
+      width: 100%; padding: .9rem;
+      background: linear-gradient(135deg, var(--teal), var(--teal2));
+      color: #fff; border: none; border-radius: 50px;
+      font-size: 1rem; font-weight: 700; cursor: pointer;
+      transition: transform .2s, box-shadow .2s;
+      box-shadow: 0 4px 16px rgba(11,143,122,.3); font-family: inherit;
     }
-    .submit-btn:hover { background: var(--dark); }
+    .submit-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(11,143,122,.4); }
 
-    /* FOOTER */
-    footer {
-      background: var(--dark); color: #ccc;
-      display: flex; justify-content: space-between; align-items: center;
-      flex-wrap: wrap; gap: 1rem; padding: 1.5rem 5%; font-size: .9rem;
+    /* ── MAP PLACEHOLDER ── */
+    .map-wrap {
+      border-radius: 12px; overflow: hidden; height: 200px; margin-top: 1.5rem;
+      background: linear-gradient(135deg, var(--teal3), #c5f0eb);
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      border: 2px dashed rgba(11,143,122,.25);
     }
-    footer a { color: var(--green2); text-decoration: none; }
-    footer a:hover { text-decoration: underline; }
+    .map-wrap span { font-size: 2.5rem; margin-bottom: .5rem; }
+    .map-wrap p { font-size: .85rem; color: var(--teal); font-weight: 600; }
 
-    /* TOAST */
+    /* ── FOOTER ── */
+    footer { background: var(--navy); color: rgba(255,255,255,.7); }
+    .footer-top {
+      display: grid; grid-template-columns: 2fr 1fr 1fr 1fr;
+      gap: 3rem; padding: 60px 6% 40px;
+    }
+    .footer-brand .logo-text { color: #fff; font-size: 1.5rem; }
+    .footer-brand p { font-size: .88rem; margin-top: 1rem; max-width: 260px; line-height: 1.6; opacity: .7; }
+    .footer-social { display: flex; gap: .8rem; margin-top: 1.5rem; }
+    .social-btn {
+      width: 38px; height: 38px; border-radius: 8px;
+      background: rgba(255,255,255,.08); display: flex; align-items: center;
+      justify-content: center; font-size: 1rem; transition: background .2s;
+      cursor: pointer; text-decoration: none;
+    }
+    .social-btn:hover { background: var(--teal2); }
+    .footer-col h4 { color: #fff; font-size: .9rem; font-weight: 700; margin-bottom: 1.2rem; letter-spacing: .5px; }
+    .footer-col ul { list-style: none; display: flex; flex-direction: column; gap: .6rem; }
+    .footer-col a { color: rgba(255,255,255,.6); text-decoration: none; font-size: .85rem; transition: color .2s; }
+    .footer-col a:hover { color: var(--teal2); }
+    .footer-bottom {
+      border-top: 1px solid rgba(255,255,255,.08);
+      padding: 20px 6%; display: flex; justify-content: space-between;
+      align-items: center; font-size: .82rem;
+    }
+    .footer-bottom a { color: var(--teal2); text-decoration: none; }
+
+    /* ── TOAST ── */
     .toast {
       position: fixed; bottom: 30px; right: 30px;
-      background: var(--green); color: #fff;
-      padding: 1rem 1.5rem; border-radius: 8px;
-      font-weight: 600; opacity: 0; pointer-events: none;
-      transition: opacity .4s; z-index: 999;
+      background: linear-gradient(135deg, var(--teal), var(--teal2));
+      color: #fff; padding: 1rem 1.5rem; border-radius: 12px;
+      font-weight: 600; font-size: .9rem;
+      opacity: 0; pointer-events: none; z-index: 999;
+      transform: translateY(10px);
+      transition: opacity .3s, transform .3s;
+      box-shadow: 0 8px 24px rgba(11,143,122,.4);
     }
-    .toast.show { opacity: 1; }
+    .toast.show { opacity: 1; transform: translateY(0); }
 
-    /* F-16 */
-    #f16-wrap {
-      position: fixed;
-      top: 18%;
-      left: 0;
-      z-index: 500;
-      pointer-events: none;
-      animation: f16fly 9s linear infinite;
-      animation-delay: 1.5s;
+    /* ── FLOATING CALL BTN ── */
+    .float-call {
+      position: fixed; bottom: 30px; left: 30px; z-index: 100;
+      display: flex; align-items: center; gap: .7rem;
+      background: var(--accent); color: #fff;
+      padding: .8rem 1.4rem; border-radius: 50px;
+      font-weight: 700; font-size: .88rem; text-decoration: none;
+      box-shadow: 0 6px 20px rgba(244,164,53,.4);
+      transition: transform .2s, box-shadow .2s;
     }
-    @keyframes f16fly {
-      from { transform: translateX(110vw); }
-      to   { transform: translateX(-480px); }
+    .float-call:hover { transform: translateY(-3px); box-shadow: 0 10px 28px rgba(244,164,53,.5); }
+    .call-pulse {
+      width: 10px; height: 10px; border-radius: 50%; background: #fff;
+      animation: pulse 1.5s infinite;
     }
+    @keyframes pulse { 0%,100%{transform:scale(1);opacity:1} 50%{transform:scale(1.4);opacity:.6} }
 
-    /* RESPONSIVE */
+    /* ── RESPONSIVE ── */
+    @media (max-width: 1024px) {
+      .stats-grid { grid-template-columns: repeat(2, 1fr); }
+      .services-grid { grid-template-columns: repeat(2, 1fr); }
+      .team-grid { grid-template-columns: repeat(2, 1fr); }
+      .footer-top { grid-template-columns: 1fr 1fr; }
+    }
     @media (max-width: 768px) {
-      nav ul { display: none; }
-      .hero { flex-direction: column; text-align: center; min-height: auto; padding-top: 60px; }
-      .hero-canvas-wrap { width: 300px; height: 300px; }
-      .about-inner { flex-direction: column; }
-      .contact-inner { grid-template-columns: 1fr; }
+      nav ul, .nav-cta { display: none; }
+      .hamburger { display: flex; }
+      .hero-inner { flex-direction: column; text-align: center; }
+      .hero-text p { margin-left: auto; margin-right: auto; }
+      .hero-btns { justify-content: center; }
+      .hero-trust { justify-content: center; }
+      .hero-visual { width: 100%; }
+      .hero-canvas-wrap { width: 100%; height: 320px; }
+      .stats-grid { grid-template-columns: repeat(2, 1fr); }
+      .services-grid { grid-template-columns: 1fr; }
+      .about-inner { grid-template-columns: 1fr; }
+      .team-grid { grid-template-columns: repeat(2, 1fr); }
+      .testimonials-grid { grid-template-columns: 1fr; }
+      .contact-grid { grid-template-columns: 1fr; }
+      .form-row { grid-template-columns: 1fr; }
+      .footer-top { grid-template-columns: 1fr; gap: 2rem; }
+      .footer-bottom { flex-direction: column; gap: .5rem; text-align: center; }
+      .animals-inner { flex-direction: column; text-align: center; }
+      .float-call { display: none; }
+    }
+    @media (max-width: 480px) {
+      .stats-grid { grid-template-columns: 1fr; }
+      .team-grid { grid-template-columns: 1fr; }
     }
   </style>
 </head>
 <body>
 
+<!-- FLOATING CALL -->
+<a class="float-call" href="tel:+48221234567">
+  <div class="call-pulse"></div>
+  Zadzwoń teraz
+</a>
+
 <!-- NAV -->
-<nav>
-  <div class="logo">Vet<span>Mediq</span></div>
+<nav id="mainNav">
+  <a class="logo" href="#">
+    <div class="logo-icon">
+      <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15v-4H7l5-8v4h4l-5 8z"/></svg>
+    </div>
+    <div class="logo-text">Vet<span>Mediq</span></div>
+  </a>
   <ul>
     <li><a href="#uslugi">Usługi</a></li>
     <li><a href="#o-nas">O nas</a></li>
     <li><a href="#zespol">Zespół</a></li>
+    <li><a href="#opinie">Opinie</a></li>
     <li><a href="#kontakt">Kontakt</a></li>
   </ul>
-  <button class="nav-btn" onclick="document.getElementById('kontakt').scrollIntoView({behavior:'smooth'})">
-    Umów wizytę
+  <a class="nav-cta" href="#kontakt">Umów wizytę</a>
+  <button class="hamburger" id="hamburger" aria-label="Menu">
+    <span></span><span></span><span></span>
   </button>
 </nav>
 
 <!-- HERO -->
 <section class="hero">
-  <div class="hero-text">
-    <h1>Zdrowie Twojego zwierzaka<br>w <em>dobrych rękach</em></h1>
-    <p>Oferujemy kompleksową opiekę weterynaryjną – od profilaktyki po zaawansowane leczenie.
-       Twój pupil zasługuje na najlepszą opiekę.</p>
-    <a href="#kontakt" class="btn">Umów wizytę</a>
-    <a href="#uslugi" class="btn btn-outline">Nasze usługi</a>
-  </div>
-  <div class="hero-canvas-wrap">
-    <canvas id="vetCanvas"></canvas>
+  <div class="hero-inner">
+    <div class="hero-text">
+      <div class="hero-badge">Przyjmujemy 7 dni w tygodniu</div>
+      <h1>Profesjonalna opieka<br>dla Twojego<br><em>pupila</em></h1>
+      <p>Kompleksowa weterynaria z sercem. Nowoczesny sprzęt, doświadczeni specjaliści i indywidualne podejście do każdego zwierzęcia.</p>
+      <div class="hero-btns">
+        <a href="#kontakt" class="btn btn-primary">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11z"/></svg>
+          Umów wizytę
+        </a>
+        <a href="#uslugi" class="btn btn-secondary">Nasze usługi →</a>
+      </div>
+      <div class="hero-trust">
+        <div class="trust-avatars">
+          <span>🐶</span><span>🐱</span><span>🐰</span><span>🦜</span>
+        </div>
+        <div class="trust-text">
+          <div class="trust-stars">★★★★★</div>
+          <strong>5 000+ zadowolonych pacjentów</strong>
+          Zaufali nam właściciele z całego miasta
+        </div>
+      </div>
+    </div>
+    <div class="hero-visual">
+      <div class="hero-canvas-wrap">
+        <canvas id="vetCanvas"></canvas>
+      </div>
+    </div>
   </div>
 </section>
 
+<!-- MARQUEE -->
+<div class="marquee-wrap">
+  <div class="marquee-track" id="marqueeTrack">
+    <div class="marquee-item"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/></svg>Szczepienia i profilaktyka</div>
+    <div class="marquee-item"><svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 3c1.93 0 3.5 1.57 3.5 3.5S13.93 13 12 13s-3.5-1.57-3.5-3.5S10.07 6 12 6zm7 13H5v-.23c0-.62.28-1.2.76-1.58C7.47 15.82 9.64 15 12 15s4.53.82 6.24 2.19c.48.38.76.97.76 1.58V19z"/></svg>Doświadczony zespół</div>
+    <div class="marquee-item"><svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>Ocena 5/5 – ponad 800 opinii</div>
+    <div class="marquee-item"><svg viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z"/></svg>Nagłe przypadki całą dobę</div>
+    <div class="marquee-item"><svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>Elektroniczna karta pacjenta</div>
+    <div class="marquee-item"><svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>Wizyty domowe</div>
+    <div class="marquee-item"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/></svg>Szczepienia i profilaktyka</div>
+    <div class="marquee-item"><svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 3c1.93 0 3.5 1.57 3.5 3.5S13.93 13 12 13s-3.5-1.57-3.5-3.5S10.07 6 12 6zm7 13H5v-.23c0-.62.28-1.2.76-1.58C7.47 15.82 9.64 15 12 15s4.53.82 6.24 2.19c.48.38.76.97.76 1.58V19z"/></svg>Doświadczony zespół</div>
+    <div class="marquee-item"><svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>Ocena 5/5 – ponad 800 opinii</div>
+    <div class="marquee-item"><svg viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z"/></svg>Nagłe przypadki całą dobę</div>
+    <div class="marquee-item"><svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>Elektroniczna karta pacjenta</div>
+    <div class="marquee-item"><svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>Wizyty domowe</div>
+  </div>
+</div>
+
 <!-- STATS -->
 <div class="stats">
-  <div class="stat"><strong>12+</strong><span>lat doświadczenia</span></div>
-  <div class="stat"><strong>5 000+</strong><span>zadowolonych pacjentów</span></div>
-  <div class="stat"><strong>6</strong><span>specjalistów</span></div>
-  <div class="stat"><strong>7 dni</strong><span>w tygodniu</span></div>
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-icon">🏆</div>
+      <div class="stat-num" data-target="12">0</div>
+      <div class="stat-label">lat doświadczenia</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">🐾</div>
+      <div class="stat-num" data-target="5000">0</div>
+      <div class="stat-label">zadowolonych pacjentów</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">👨‍⚕️</div>
+      <div class="stat-num" data-target="6">0</div>
+      <div class="stat-label">specjalistów</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">⭐</div>
+      <div class="stat-num" data-target="800">0</div>
+      <div class="stat-label">pozytywnych opinii</div>
+    </div>
+  </div>
 </div>
 
 <!-- SERVICES -->
 <section id="uslugi">
-  <h2 class="section-title">Nasze usługi</h2>
-  <p class="section-sub">Pełen zakres opieki weterynaryjnej dla Twojego pupila</p>
-  <div class="cards">
-    <div class="card">
-      <div class="card-icon">💉</div>
-      <h3>Szczepienia</h3>
-      <p>Kompleksowy program szczepień dla psów, kotów i małych zwierząt. Paszporty i dokumentacja.</p>
+  <div class="section-header">
+    <div class="section-tag">Oferta</div>
+    <h2 class="section-title">Nasze usługi</h2>
+    <p class="section-sub">Pełen zakres opieki weterynaryjnej w jednym miejscu</p>
+  </div>
+  <div class="services-grid">
+    <div class="service-card">
+      <div class="service-icon">💉</div>
+      <h3>Szczepienia & profilaktyka</h3>
+      <p>Indywidualny program szczepień, odrobaczanie, paszporty dla psów i kotów. Kompleksowa dokumentacja medyczna.</p>
+      <a href="#kontakt" class="service-link">Umów wizytę →</a>
     </div>
-    <div class="card">
-      <div class="card-icon">🔬</div>
-      <h3>Diagnostyka</h3>
-      <p>USG, RTG, morfologia krwi oraz testy biochemiczne – wyniki na miejscu w krótkim czasie.</p>
+    <div class="service-card">
+      <div class="service-icon">🔬</div>
+      <h3>Diagnostyka i badania</h3>
+      <p>USG, RTG cyfrowe, morfologia, biochemia krwi. Wyniki analiz w ciągu godziny bezpośrednio w gabinecie.</p>
+      <a href="#kontakt" class="service-link">Umów wizytę →</a>
     </div>
-    <div class="card">
-      <div class="card-icon">🏥</div>
+    <div class="service-card">
+      <div class="service-icon">🏥</div>
       <h3>Chirurgia</h3>
-      <p>Zabiegi operacyjne i kastracja w sterylnych warunkach. Pełna opieka przed- i pooperacyjna.</p>
+      <p>Zabiegi planowe i nagłe w w pełni sterylnych warunkach. Kastracja, sterylizacja, usuwanie nowotworów.</p>
+      <a href="#kontakt" class="service-link">Umów wizytę →</a>
     </div>
-    <div class="card">
-      <div class="card-icon">🦷</div>
+    <div class="service-card">
+      <div class="service-icon">🦷</div>
       <h3>Stomatologia</h3>
-      <p>Czyszczenie zębów, ekstrakcje, profilaktyka chorób jamy ustnej zwierząt.</p>
+      <p>Scaling, polerowanie, ekstrakcje, leczenie chorób dziąseł. Profilaktyka stomatologiczna dla zwierząt.</p>
+      <a href="#kontakt" class="service-link">Umów wizytę →</a>
     </div>
-    <div class="card">
-      <div class="card-icon">🐾</div>
+    <div class="service-card">
+      <div class="service-icon">🐾</div>
       <h3>Dermatologia</h3>
-      <p>Leczenie alergii, chorób skóry i sierści. Testy alergologiczne i terapia.</p>
+      <p>Diagnostyka alergii, chorób skóry i sierści. Testy alergologiczne i immunoterapia swoista.</p>
+      <a href="#kontakt" class="service-link">Umów wizytę →</a>
     </div>
-    <div class="card">
-      <div class="card-icon">🏠</div>
+    <div class="service-card">
+      <div class="service-icon">🏠</div>
       <h3>Wizyty domowe</h3>
-      <p>Dojeżdżamy do Twojego domu – idealne dla zwierząt stresujących się podróżą.</p>
+      <p>Przyjeżdżamy do Twojego domu. Idealne dla zwierząt zestresowanych podróżą lub po zabiegach chirurgicznych.</p>
+      <a href="#kontakt" class="service-link">Umów wizytę →</a>
     </div>
   </div>
 </section>
 
+<!-- ANIMALS STRIP -->
+<div class="animals-strip">
+  <div class="animals-inner">
+    <div class="animals-text">
+      <h2>Leczymy wszystkich pupili</h2>
+      <p>Nasz zespół specjalizuje się w opiece nad psami, kotami, gryzoniami, ptakami, gadami i innymi zwierzętami egzotycznymi.</p>
+    </div>
+    <div class="animals-icons">
+      <div class="animal-pill"><span>🐶</span> Psy</div>
+      <div class="animal-pill"><span>🐱</span> Koty</div>
+      <div class="animal-pill"><span>🐰</span> Króliki</div>
+      <div class="animal-pill"><span>🦜</span> Ptaki</div>
+      <div class="animal-pill"><span>🦎</span> Gady</div>
+      <div class="animal-pill"><span>🐹</span> Gryzonie</div>
+      <div class="animal-pill"><span>🐠</span> Egzotyczne</div>
+    </div>
+  </div>
+</div>
+
 <!-- ABOUT -->
 <section id="o-nas">
   <div class="about-inner">
-    <div class="about-img">🩺</div>
+    <div class="about-visual">
+      <div class="about-img-main">
+        <svg class="about-svg-wrap" viewBox="0 0 500 420" xmlns="http://www.w3.org/2000/svg">
+          <!-- background -->
+          <rect width="500" height="420" fill="#d0f4ef" rx="24"/>
+          <!-- clinic building -->
+          <rect x="80" y="180" width="340" height="200" fill="#0b8f7a" rx="8"/>
+          <rect x="60" y="160" width="380" height="30" fill="#0d6b5c" rx="4"/>
+          <!-- windows -->
+          <rect x="110" y="210" width="60" height="50" fill="#b2eee6" rx="6"/>
+          <rect x="220" y="210" width="60" height="50" fill="#b2eee6" rx="6"/>
+          <rect x="330" y="210" width="60" height="50" fill="#b2eee6" rx="6"/>
+          <!-- door -->
+          <rect x="205" y="300" width="90" height="80" fill="#0d6b5c" rx="6"/>
+          <circle cx="285" cy="342" r="5" fill="#f4a435"/>
+          <!-- cross sign -->
+          <rect x="225" y="60" width="50" height="80" fill="white" rx="8"/>
+          <rect x="205" y="80" width="90" height="40" fill="white" rx="8"/>
+          <rect x="240" y="68" width="20" height="64" fill="#0b8f7a"/>
+          <rect x="213" y="88" width="74" height="20" fill="#0b8f7a"/>
+          <!-- Vet sign -->
+          <rect x="140" y="130" width="220" height="34" fill="white" rx="6"/>
+          <text x="250" y="153" text-anchor="middle" font-family="Inter,sans-serif" font-weight="800" font-size="16" fill="#0b8f7a">VetMediq</text>
+          <!-- sidewalk -->
+          <ellipse cx="250" cy="390" rx="180" ry="14" fill="#b2eee6"/>
+          <!-- dog SVG left -->
+          <g transform="translate(30,270)">
+            <!-- body -->
+            <ellipse cx="40" cy="55" rx="28" ry="20" fill="#c8914a"/>
+            <!-- head -->
+            <circle cx="60" cy="35" r="18" fill="#c8914a"/>
+            <!-- ear -->
+            <ellipse cx="51" cy="21" rx="9" ry="13" fill="#a0702e" transform="rotate(-15,51,21)"/>
+            <!-- snout -->
+            <ellipse cx="72" cy="40" rx="10" ry="7" fill="#e8b06a"/>
+            <!-- eye -->
+            <circle cx="65" cy="30" r="3" fill="#1a1a1a"/>
+            <circle cx="66" cy="29" r="1" fill="white"/>
+            <!-- nose -->
+            <ellipse cx="78" cy="38" rx="4" ry="3" fill="#3a2010"/>
+            <!-- tail -->
+            <path d="M12,48 Q-5,30 5,20" stroke="#c8914a" stroke-width="8" fill="none" stroke-linecap="round"/>
+            <!-- legs -->
+            <rect x="20" y="68" width="10" height="20" rx="5" fill="#a0702e"/>
+            <rect x="40" y="68" width="10" height="20" rx="5" fill="#a0702e"/>
+            <rect x="52" y="68" width="10" height="22" rx="5" fill="#a0702e"/>
+          </g>
+          <!-- cat SVG right -->
+          <g transform="translate(370,265)">
+            <!-- body -->
+            <ellipse cx="40" cy="60" rx="26" ry="22" fill="#888"/>
+            <!-- head -->
+            <circle cx="40" cy="32" r="20" fill="#888"/>
+            <!-- ears -->
+            <polygon points="26,18 20,2 36,12" fill="#888"/>
+            <polygon points="54,18 60,2 44,12" fill="#888"/>
+            <polygon points="28,16 24,6 36,13" fill="#ffb6c1"/>
+            <polygon points="52,16 56,6 44,13" fill="#ffb6c1"/>
+            <!-- eyes -->
+            <ellipse cx="32" cy="30" rx="5" ry="6" fill="#4fc3a1"/>
+            <ellipse cx="48" cy="30" rx="5" ry="6" fill="#4fc3a1"/>
+            <ellipse cx="32" cy="31" rx="2" ry="5" fill="#111"/>
+            <ellipse cx="48" cy="31" rx="2" ry="5" fill="#111"/>
+            <circle cx="31" cy="28" r="1.5" fill="white"/>
+            <circle cx="47" cy="28" r="1.5" fill="white"/>
+            <!-- nose -->
+            <polygon points="40,39 37,43 43,43" fill="#ffb6c1"/>
+            <!-- mouth -->
+            <path d="M37,43 Q40,47 43,43" stroke="#555" stroke-width="1.5" fill="none"/>
+            <!-- whiskers -->
+            <line x1="20" y1="40" x2="36" y2="42" stroke="#aaa" stroke-width="1"/>
+            <line x1="20" y1="44" x2="36" y2="44" stroke="#aaa" stroke-width="1"/>
+            <line x1="60" y1="40" x2="44" y2="42" stroke="#aaa" stroke-width="1"/>
+            <line x1="60" y1="44" x2="44" y2="44" stroke="#aaa" stroke-width="1"/>
+            <!-- tail -->
+            <path d="M66,70 Q85,55 75,35" stroke="#888" stroke-width="9" fill="none" stroke-linecap="round"/>
+            <!-- legs -->
+            <rect x="22" y="76" width="10" height="18" rx="5" fill="#777"/>
+            <rect x="38" y="76" width="10" height="18" rx="5" fill="#777"/>
+          </g>
+          <!-- paw prints on path -->
+          <g opacity="0.35">
+            <text x="170" y="395" font-size="14">🐾</text>
+            <text x="210" y="388" font-size="12">🐾</text>
+            <text x="250" y="397" font-size="14">🐾</text>
+            <text x="290" y="387" font-size="12">🐾</text>
+            <text x="325" y="396" font-size="14">🐾</text>
+          </g>
+        </svg>
+      </div>
+      <div class="about-badge-float">
+        <div class="badge-icon">🏅</div>
+        <div>
+          <strong>12+ lat</strong>
+          <span>doświadczenia</span>
+        </div>
+      </div>
+      <div class="about-badge-float2">
+        <strong>★ 4.97</strong>
+        Ocena klientów
+      </div>
+    </div>
     <div class="about-text">
-      <h2>Dlaczego VetMediq?</h2>
-      <p>Jesteśmy gabinetem weterynaryjnym z ponad 12-letnim doświadczeniem. Nasz zespół tworzą wykwalifikowani
-         specjaliści, dla których dobro zwierząt jest najwyższym priorytetem.</p>
-      <p>Wyposażeni w nowoczesny sprzęt diagnostyczny, zapewniamy szybką i trafną diagnostykę,
-         a co za tym idzie – skuteczne leczenie.</p>
+      <div class="section-tag">O nas</div>
+      <h2>Dlaczego właściciele ufają VetMediq?</h2>
+      <p>Jesteśmy gabinetem weterynaryjnym z ponad 12-letnim doświadczeniem. Zbudowaliśmy miejsce, gdzie zwierzęta są traktowane z taką samą troską jak ludzcy pacjenci.</p>
       <ul class="check-list">
-        <li>Nowoczesny sprzęt diagnostyczny</li>
-        <li>Indywidualne podejście do każdego pacjenta</li>
-        <li>Przyjazna atmosfera dla zwierząt i właścicieli</li>
-        <li>Przyjęcia nagłe 7 dni w tygodniu</li>
-        <li>Elektroniczna karta pacjenta i przypomnienia o wizytach</li>
+        <li><div class="check-icon">✓</div><div>Nowoczesny sprzęt diagnostyczny – USG, RTG cyfrowe, laboratorium na miejscu</div></li>
+        <li><div class="check-icon">✓</div><div>Indywidualne podejście – każdy pacjent dostaje pełną uwagę i czas</div></li>
+        <li><div class="check-icon">✓</div><div>Przyjazna, spokojna atmosfera minimalizująca stres zwierząt</div></li>
+        <li><div class="check-icon">✓</div><div>Przyjęcia nagłe 7 dni w tygodniu, telefon całą dobę</div></li>
+        <li><div class="check-icon">✓</div><div>Elektroniczna karta pacjenta i SMS-owe przypomnienia o wizytach</div></li>
+        <li><div class="check-icon">✓</div><div>Gabinety dla psów i kotów rozdzielone – mniej stresu</div></li>
       </ul>
+      <a href="#kontakt" class="btn btn-primary">Poznaj nas lepiej</a>
     </div>
   </div>
 </section>
 
 <!-- TEAM -->
 <section id="zespol">
-  <h2 class="section-title">Nasz zespół</h2>
-  <p class="section-sub">Poznaj lekarzy, którym powierzysz swojego pupila</p>
-  <div class="team">
-    <div class="member">
-      <div class="avatar">👨‍⚕️</div>
-      <h3>dr Marek Kowalski</h3>
-      <span>Chirurgia i ortopedia</span>
-      <p>15 lat praktyki. Specjalizacja w chirurgii małych zwierząt i ortopedii.</p>
+  <div class="section-header">
+    <div class="section-tag">Nasz Zespół</div>
+    <h2 class="section-title">Lekarze, którym możesz zaufać</h2>
+    <p class="section-sub">Doświadczeni specjaliści z pasją do zwierząt</p>
+  </div>
+  <div class="team-grid">
+    <div class="member-card">
+      <div class="member-top">
+        <div class="member-avatar">👨‍⚕️</div>
+        <h3>dr Marek Kowalski</h3>
+      </div>
+      <div class="member-bottom">
+        <div class="member-role">Chirurgia & Ortopedia</div>
+        <p class="member-bio">15 lat praktyki. Specjalista chirurgii małych zwierząt, ortopedii i onkologii. Ukończył staż w Wiedniu.</p>
+      </div>
     </div>
-    <div class="member">
-      <div class="avatar">👩‍⚕️</div>
-      <h3>dr Anna Nowak</h3>
-      <span>Internista, dermatolog</span>
-      <p>Ekspert w chorobach wewnętrznych i dermatologii. Przyjazna i cierpliwa.</p>
+    <div class="member-card">
+      <div class="member-top">
+        <div class="member-avatar">👩‍⚕️</div>
+        <h3>dr Anna Nowak</h3>
+      </div>
+      <div class="member-bottom">
+        <div class="member-role">Internista & Dermatolog</div>
+        <p class="member-bio">Ekspert w chorobach wewnętrznych i dermatologii. Specjalizacja w alergologii i immunoterapii.</p>
+      </div>
     </div>
-    <div class="member">
-      <div class="avatar">👩‍⚕️</div>
-      <h3>dr Karolina Wiśniewska</h3>
-      <span>Stomatologia weterynaryjna</span>
-      <p>Jedyna w regionie specjalistka od stomatologii weterynaryjnej.</p>
+    <div class="member-card">
+      <div class="member-top">
+        <div class="member-avatar">👩‍⚕️</div>
+        <h3>dr Karolina Wiśniewska</h3>
+      </div>
+      <div class="member-bottom">
+        <div class="member-role">Stomatologia Weterynaryjna</div>
+        <p class="member-bio">Jedyna w regionie certyfikowana specjalistka stomatologii wet. Zabiegi pod znieczuleniem ogólnym.</p>
+      </div>
     </div>
-    <div class="member">
-      <div class="avatar">👨‍⚕️</div>
-      <h3>dr Piotr Zając</h3>
-      <span>Egzotyczne zwierzęta</span>
-      <p>Leczenie gadów, ptaków, gryzoni i innych zwierząt egzotycznych.</p>
+    <div class="member-card">
+      <div class="member-top">
+        <div class="member-avatar">👨‍⚕️</div>
+        <h3>dr Piotr Zając</h3>
+      </div>
+      <div class="member-bottom">
+        <div class="member-role">Zwierzęta Egzotyczne</div>
+        <p class="member-bio">Specjalista w leczeniu gadów, ptaków, gryzoni i zwierząt egzotycznych. Autor artykułów naukowych.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section id="opinie">
+  <div class="section-header">
+    <div class="section-tag">Opinie</div>
+    <h2 class="section-title">Co mówią nasi klienci</h2>
+    <p class="section-sub">Ponad 800 opinii – średnia ocena 4.97/5</p>
+  </div>
+  <div class="testimonials-grid">
+    <div class="testimonial-card">
+      <div class="stars">★★★★★</div>
+      <div class="quote-icon">"</div>
+      <p>Znakomita klinika! Burek trafił tu po wypadku i dziś biega jak nowy. Lekarze byli dostępni przez całą dobę i cały czas informowali nas o stanie psa. Najlepsi!</p>
+      <div class="testimonial-author">
+        <div class="author-avatar">👨</div>
+        <div>
+          <div class="author-name">Tomasz Wiśniewski</div>
+          <div class="author-pet">właściciel Burka 🐶</div>
+        </div>
+      </div>
+    </div>
+    <div class="testimonial-card">
+      <div class="stars">★★★★★</div>
+      <div class="quote-icon">"</div>
+      <p>Mój kot Mruczek ma alergię i przez lata żaden weterynarz nie potrafił mu pomóc. Dr Nowak rozwiązała problem w trzy wizyty. Profesjonalizm na najwyższym poziomie!</p>
+      <div class="testimonial-author">
+        <div class="author-avatar">👩</div>
+        <div>
+          <div class="author-name">Aleksandra Kowalczyk</div>
+          <div class="author-pet">właścicielka Mruczka 🐱</div>
+        </div>
+      </div>
+    </div>
+    <div class="testimonial-card">
+      <div class="stars">★★★★★</div>
+      <div class="quote-icon">"</div>
+      <p>Przyszłam z moją papugą i byłam pod wrażeniem – specjalny gabinet, spokój, cierpliwość. Dr Zając to prawdziwy ekspert od egzotycznych zwierząt. Polecam wszystkim!</p>
+      <div class="testimonial-author">
+        <div class="author-avatar">👩</div>
+        <div>
+          <div class="author-name">Marta Jabłońska</div>
+          <div class="author-pet">właścicielka Ara 🦜</div>
+        </div>
+      </div>
     </div>
   </div>
 </section>
 
 <!-- CONTACT -->
 <section id="kontakt">
-  <h2 class="section-title">Kontakt i rejestracja</h2>
-  <p class="section-sub">Skontaktuj się z nami lub umów wizytę online</p>
-  <div class="contact-inner">
+  <div class="section-header">
+    <div class="section-tag">Kontakt</div>
+    <h2 class="section-title">Umów wizytę</h2>
+    <p class="section-sub">Zadzwoń lub wypełnij formularz – oddzwonimy w ciągu godziny</p>
+  </div>
+  <div class="contact-grid">
     <div class="contact-info">
       <h3>Znajdź nas</h3>
-      <div class="info-row">
-        <div class="info-icon">📍</div>
-        <div class="info-text">
+      <div class="info-card">
+        <div class="info-icon-wrap">📍</div>
+        <div>
           <strong>Adres</strong>
           <span>ul. Zwierzęca 12, 00-001 Warszawa</span>
         </div>
       </div>
-      <div class="info-row">
-        <div class="info-icon">📞</div>
-        <div class="info-text">
+      <div class="info-card">
+        <div class="info-icon-wrap">📞</div>
+        <div>
           <strong>Telefon</strong>
-          <span>+48 22 123 45 67</span>
+          <span><a href="tel:+48221234567" style="color:var(--teal);text-decoration:none;font-weight:600;">+48 22 123 45 67</a></span>
         </div>
       </div>
-      <div class="info-row">
-        <div class="info-icon">✉️</div>
-        <div class="info-text">
+      <div class="info-card">
+        <div class="info-icon-wrap">✉️</div>
+        <div>
           <strong>E-mail</strong>
-          <span>kontakt@vetmediq.pl</span>
+          <span><a href="mailto:kontakt@vetmediq.pl" style="color:var(--teal);text-decoration:none;">kontakt@vetmediq.pl</a></span>
         </div>
       </div>
-      <h3 style="margin-top:2rem;">Godziny otwarcia</h3>
-      <table class="hours-table">
-        <tr><td>Poniedziałek – Piątek</td><td>8:00 – 20:00</td></tr>
-        <tr><td>Sobota</td><td>9:00 – 16:00</td></tr>
-        <tr><td>Niedziela</td><td>10:00 – 14:00</td></tr>
-        <tr><td>Nagłe przypadki</td><td>całą dobę</td></tr>
-      </table>
+      <div class="hours-box">
+        <h4>Godziny otwarcia</h4>
+        <div class="hours-row"><span>Poniedziałek – Piątek</span><span class="time">8:00 – 20:00</span></div>
+        <div class="hours-row"><span>Sobota</span><span class="time">9:00 – 16:00</span></div>
+        <div class="hours-row"><span>Niedziela</span><span class="time">10:00 – 14:00</span></div>
+        <div class="hours-row emergency"><span>🚨 Nagłe przypadki</span><span class="time">24/7</span></div>
+      </div>
+      <div class="map-wrap">
+        <span>🗺️</span>
+        <p>ul. Zwierzęca 12, Warszawa</p>
+      </div>
     </div>
 
-    <form onsubmit="handleForm(event)">
-      <h3>Umów wizytę</h3>
-      <div class="form-group">
-        <label>Imię i nazwisko właściciela</label>
-        <input type="text" placeholder="Jan Kowalski" required>
+    <form class="contact-form" onsubmit="handleForm(event)">
+      <h3>Formularz rejestracji</h3>
+      <p>Uzupełnij poniższe dane, a skontaktujemy się z Tobą niezwłocznie</p>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Imię właściciela *</label>
+          <input type="text" placeholder="Jan" required>
+        </div>
+        <div class="form-group">
+          <label>Nazwisko *</label>
+          <input type="text" placeholder="Kowalski" required>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Telefon *</label>
+          <input type="tel" placeholder="+48 500 000 000" required>
+        </div>
+        <div class="form-group">
+          <label>E-mail</label>
+          <input type="email" placeholder="jan@email.pl">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Gatunek zwierzęcia *</label>
+          <select required>
+            <option value="">Wybierz...</option>
+            <option>Pies</option>
+            <option>Kot</option>
+            <option>Królik</option>
+            <option>Ptak</option>
+            <option>Gad</option>
+            <option>Gryzoń</option>
+            <option>Inne egzotyczne</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Imię zwierzęcia</label>
+          <input type="text" placeholder="np. Burek">
+        </div>
       </div>
       <div class="form-group">
-        <label>Telefon</label>
-        <input type="tel" placeholder="+48 500 000 000" required>
-      </div>
-      <div class="form-group">
-        <label>Gatunek zwierzęcia</label>
-        <select required>
-          <option value="">Wybierz...</option>
-          <option>Pies</option>
-          <option>Kot</option>
-          <option>Królik</option>
-          <option>Ptak</option>
-          <option>Gad</option>
-          <option>Inne</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label>Preferowany termin</label>
+        <label>Preferowany termin *</label>
         <input type="date" required>
       </div>
       <div class="form-group">
-        <label>Opis problemu (opcjonalnie)</label>
-        <textarea placeholder="Opisz krótko powód wizyty..."></textarea>
+        <label>Opis problemu</label>
+        <textarea placeholder="Opisz krótko powód wizyty lub objawy..."></textarea>
       </div>
-      <button type="submit" class="submit-btn">Wyślij zgłoszenie</button>
+      <button type="submit" class="submit-btn">Wyślij zgłoszenie →</button>
     </form>
   </div>
 </section>
 
 <!-- FOOTER -->
 <footer>
-  <span>© 2026 VetMediq. Wszelkie prawa zastrzeżone.</span>
-  <span>
-    <a href="tel:+48221234567">+48 22 123 45 67</a> &nbsp;|&nbsp;
-    <a href="mailto:kontakt@vetmediq.pl">kontakt@vetmediq.pl</a>
-  </span>
+  <div class="footer-top">
+    <div class="footer-brand">
+      <div class="logo-text" style="font-size:1.5rem;">Vet<span style="color:var(--teal2);">Mediq</span></div>
+      <p>Profesjonalna opieka weterynaryjna dla Twojego pupila. Doświadczony zespół, nowoczesny sprzęt, serce dla zwierząt.</p>
+      <div class="footer-social">
+        <a class="social-btn" href="#" title="Facebook">f</a>
+        <a class="social-btn" href="#" title="Instagram">📷</a>
+        <a class="social-btn" href="#" title="YouTube">▶</a>
+      </div>
+    </div>
+    <div class="footer-col">
+      <h4>Usługi</h4>
+      <ul>
+        <li><a href="#uslugi">Szczepienia</a></li>
+        <li><a href="#uslugi">Diagnostyka</a></li>
+        <li><a href="#uslugi">Chirurgia</a></li>
+        <li><a href="#uslugi">Stomatologia</a></li>
+        <li><a href="#uslugi">Dermatologia</a></li>
+        <li><a href="#uslugi">Wizyty domowe</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Klinika</h4>
+      <ul>
+        <li><a href="#o-nas">O nas</a></li>
+        <li><a href="#zespol">Zespół</a></li>
+        <li><a href="#opinie">Opinie</a></li>
+        <li><a href="#kontakt">Kontakt</a></li>
+        <li><a href="#">Kariera</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Kontakt</h4>
+      <ul>
+        <li><a href="tel:+48221234567">+48 22 123 45 67</a></li>
+        <li><a href="mailto:kontakt@vetmediq.pl">kontakt@vetmediq.pl</a></li>
+        <li><a href="#">ul. Zwierzęca 12</a></li>
+        <li><a href="#">00-001 Warszawa</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2026 VetMediq. Wszelkie prawa zastrzeżone.</span>
+    <span><a href="#">Polityka prywatności</a> &nbsp;·&nbsp; <a href="#">Regulamin</a></span>
+  </div>
 </footer>
 
-<!-- F-16 -->
-<div id="f16-wrap">
-  <canvas id="f16canvas" width="460" height="120"></canvas>
-</div>
-
 <!-- TOAST -->
-<div class="toast" id="toast">Zgłoszenie wysłane! Skontaktujemy się wkrótce. 🐾</div>
+<div class="toast" id="toast">✓ Zgłoszenie wysłane! Skontaktujemy się wkrótce. 🐾</div>
 
+<!-- THREE.JS HERO 3D -->
 <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
 <script>
 (function() {
   const wrap = document.querySelector('.hero-canvas-wrap');
-  const W = wrap.clientWidth, H = wrap.clientHeight;
-
+  const W = wrap.clientWidth || 500, H = wrap.clientHeight || 500;
   const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('vetCanvas'), antialias: true, alpha: true });
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
   renderer.setSize(W, H);
-
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(60, W / H, 0.1, 200);
   camera.position.set(0, 0, 22);
 
-  // ── PAW TEXTURE FACTORY ──────────────────────────────────────
   function createPawTexture(fillColor, glowColor, size) {
     const cv = document.createElement('canvas');
     cv.width = cv.height = size;
     const ctx = cv.getContext('2d');
     const s = size / 128;
-
-    // soft glow halo
-    const grd = ctx.createRadialGradient(64*s, 72*s, 4*s, 64*s, 72*s, 60*s);
-    grd.addColorStop(0,   glowColor + 'bb');
-    grd.addColorStop(0.55, glowColor + '33');
-    grd.addColorStop(1,   glowColor + '00');
-    ctx.fillStyle = grd;
-    ctx.fillRect(0, 0, size, size);
-
-    // crisp fill – no shadow blur
-    ctx.fillStyle = fillColor;
-    ctx.shadowBlur = 0;
-
-    // main pad
-    ctx.beginPath();
-    ctx.ellipse(64*s, 86*s, 27*s, 23*s, 0, 0, Math.PI * 2);
-    ctx.fill();
-
-    // toe pads
-    const toes = [
-      [28*s, 52*s, 15*s, 17*s, -0.35],
-      [52*s, 38*s, 15*s, 17*s, -0.1],
-      [77*s, 38*s, 15*s, 17*s,  0.1],
-      [101*s, 52*s, 15*s, 17*s,  0.35],
-    ];
-    toes.forEach(([x, y, rx, ry, rot]) => {
-      ctx.beginPath();
-      ctx.ellipse(x, y, rx, ry, rot, 0, Math.PI * 2);
-      ctx.fill();
+    const grd = ctx.createRadialGradient(64*s,72*s,4*s,64*s,72*s,60*s);
+    grd.addColorStop(0, glowColor+'bb'); grd.addColorStop(0.55, glowColor+'33'); grd.addColorStop(1, glowColor+'00');
+    ctx.fillStyle = grd; ctx.fillRect(0,0,size,size);
+    ctx.fillStyle = fillColor; ctx.shadowBlur = 0;
+    ctx.beginPath(); ctx.ellipse(64*s,86*s,27*s,23*s,0,0,Math.PI*2); ctx.fill();
+    [[28*s,52*s,15*s,17*s,-.35],[52*s,38*s,15*s,17*s,-.1],[77*s,38*s,15*s,17*s,.1],[101*s,52*s,15*s,17*s,.35]].forEach(([x,y,rx,ry,rot])=>{
+      ctx.beginPath(); ctx.ellipse(x,y,rx,ry,rot,0,Math.PI*2); ctx.fill();
     });
-
     return new THREE.CanvasTexture(cv);
   }
 
-  const pawTexBig   = createPawTexture('#1e88e5', '#42a5f5', 512);
-  const pawTexBlue  = createPawTexture('#1565c0', '#1e88e5', 256);
-  const pawTexLight = createPawTexture('#42a5f5', '#90caf9', 256);
-  const pawTexDim   = createPawTexture('#1e88e5', '#1565c0', 256);
+  const pawBig   = createPawTexture('#0b8f7a','#13b39a',512);
+  const pawBlue  = createPawTexture('#0d6b5c','#0b8f7a',256);
+  const pawLight = createPawTexture('#13b39a','#4fc3a1',256);
+  const pawDim   = createPawTexture('#4fc3a1','#0b8f7a',256);
 
-  // ── CENTRAL PAW SPRITE ───────────────────────────────────────
-  const coreMat = new THREE.SpriteMaterial({ map: pawTexBig, transparent: true, opacity: 0.95, depthWrite: false });
-  const core = new THREE.Sprite(coreMat);
-  core.scale.set(6, 6, 1);
-  scene.add(core);
+  const coreMat = new THREE.SpriteMaterial({map:pawBig,transparent:true,opacity:.95,depthWrite:false});
+  const core = new THREE.Sprite(coreMat); core.scale.set(6,6,1); scene.add(core);
+  const glowMat = new THREE.SpriteMaterial({map:pawBig,transparent:true,opacity:.18,depthWrite:false});
+  const glow = new THREE.Sprite(glowMat); glow.scale.set(9,9,1); scene.add(glow);
 
-  // glow behind core
-  const glowMat = new THREE.SpriteMaterial({ map: pawTexBig, transparent: true, opacity: 0.18, depthWrite: false });
-  const glow = new THREE.Sprite(glowMat);
-  glow.scale.set(9, 9, 1);
-  scene.add(glow);
-
-  // ── ORBITAL RINGS OF PAWS ────────────────────────────────────
-  function makeRing(count, radius, tilt, tex, spriteSize) {
+  function makeRing(count,radius,tilt,tex,sz) {
     const g = new THREE.Group();
-    for (let i = 0; i < count; i++) {
-      const angle = (i / count) * Math.PI * 2;
-      const mat = new THREE.SpriteMaterial({ map: tex, transparent: true, opacity: 0.85, depthWrite: false });
-      const sp = new THREE.Sprite(mat);
-      sp.scale.set(spriteSize, spriteSize, 1);
-      sp.position.set(Math.cos(angle) * radius, 0, Math.sin(angle) * radius);
-      // rotate each paw slightly for variety
-      sp.material.rotation = (i / count) * Math.PI * 2;
-      g.add(sp);
+    for(let i=0;i<count;i++){
+      const a=(i/count)*Math.PI*2;
+      const mat=new THREE.SpriteMaterial({map:tex,transparent:true,opacity:.85,depthWrite:false});
+      const sp=new THREE.Sprite(mat); sp.scale.set(sz,sz,1);
+      sp.position.set(Math.cos(a)*radius,0,Math.sin(a)*radius);
+      sp.material.rotation=(i/count)*Math.PI*2; g.add(sp);
     }
-    g.rotation.x = tilt;
-    scene.add(g);
-    return g;
+    g.rotation.x=tilt; scene.add(g); return g;
   }
 
-  const ring1 = makeRing(22, 7.5,  0.4,  pawTexBlue,  1.1);
-  const ring2 = makeRing(16, 9.0,  1.1,  pawTexLight, 0.9);
-  const ring3 = makeRing(12, 10.5, -0.7, pawTexDim,   0.75);
+  const ring1=makeRing(22,7.5, .4, pawBlue, 1.1);
+  const ring2=makeRing(16,9.0, 1.1,pawLight,.9);
+  const ring3=makeRing(12,10.5,-.7,pawDim,  .75);
 
-  // ── FLOATING PAW PARTICLES ───────────────────────────────────
-  const floatData = [];
-  for (let i = 0; i < 30; i++) {
-    const theta = Math.random() * Math.PI * 2;
-    const phi   = Math.acos(2 * Math.random() - 1);
-    const r     = 5.5 + Math.random() * 5;
-    const sz    = 0.35 + Math.random() * 0.45;
-    const mat   = new THREE.SpriteMaterial({ map: pawTexDim, transparent: true, opacity: 0.5 + Math.random() * 0.3, depthWrite: false });
-    mat.rotation = Math.random() * Math.PI * 2;
-    const sp = new THREE.Sprite(mat);
-    sp.scale.set(sz, sz, 1);
-    sp.position.set(r * Math.sin(phi) * Math.cos(theta), r * Math.sin(phi) * Math.sin(theta), r * Math.cos(phi));
-    scene.add(sp);
-    floatData.push({ sp, speed: 0.3 + Math.random() * 0.6, offset: Math.random() * Math.PI * 2 });
+  const floatData=[];
+  for(let i=0;i<30;i++){
+    const th=Math.random()*Math.PI*2, ph=Math.acos(2*Math.random()-1), r=5.5+Math.random()*5, sz=.35+Math.random()*.45;
+    const mat=new THREE.SpriteMaterial({map:pawDim,transparent:true,opacity:.5+Math.random()*.3,depthWrite:false});
+    mat.rotation=Math.random()*Math.PI*2;
+    const sp=new THREE.Sprite(mat); sp.scale.set(sz,sz,1);
+    sp.position.set(r*Math.sin(ph)*Math.cos(th),r*Math.sin(ph)*Math.sin(th),r*Math.cos(ph));
+    scene.add(sp); floatData.push({sp,speed:.3+Math.random()*.6,offset:Math.random()*Math.PI*2});
   }
 
-  // ── STAR FIELD ───────────────────────────────────────────────
-  const starPos = new Float32Array(500 * 3);
-  for (let i = 0; i < 500 * 3; i++) starPos[i] = (Math.random() - 0.5) * 80;
-  const starGeo = new THREE.BufferGeometry();
-  starGeo.setAttribute('position', new THREE.BufferAttribute(starPos, 3));
-  scene.add(new THREE.Points(starGeo, new THREE.PointsMaterial({ color: 0x90caf9, size: 0.15, transparent: true, opacity: 0.5 })));
+  const starPos=new Float32Array(500*3);
+  for(let i=0;i<1500;i++) starPos[i]=(Math.random()-.5)*80;
+  const sg=new THREE.BufferGeometry(); sg.setAttribute('position',new THREE.BufferAttribute(starPos,3));
+  scene.add(new THREE.Points(sg,new THREE.PointsMaterial({color:0x4fc3a1,size:.15,transparent:true,opacity:.5})));
 
-  // ── LIGHTS ───────────────────────────────────────────────────
-  scene.add(new THREE.AmbientLight(0xffffff, 0.6));
-  const pl = new THREE.PointLight(0x1e88e5, 2, 30);
-  pl.position.set(0, 0, 6);
-  scene.add(pl);
+  scene.add(new THREE.AmbientLight(0xffffff,.6));
+  const pl=new THREE.PointLight(0x0b8f7a,2,30); pl.position.set(0,0,6); scene.add(pl);
 
-  // ── MOUSE PARALLAX ───────────────────────────────────────────
-  let mx = 0, my = 0;
-  wrap.addEventListener('mousemove', e => {
-    const r = wrap.getBoundingClientRect();
-    mx = ((e.clientX - r.left) / r.width  - 0.5) * 2;
-    my = ((e.clientY - r.top)  / r.height - 0.5) * 2;
+  let mx=0,my=0;
+  wrap.addEventListener('mousemove',e=>{
+    const r=wrap.getBoundingClientRect();
+    mx=((e.clientX-r.left)/r.width-.5)*2; my=((e.clientY-r.top)/r.height-.5)*2;
   });
 
-  // ── ANIMATE ──────────────────────────────────────────────────
-  let t = 0;
-  function animate() {
-    requestAnimationFrame(animate);
-    t += 0.012;
-
-    // pulsing central paw
-    const pulse = 1 + 0.07 * Math.sin(t * 2.5);
-    core.scale.set(6 * pulse, 6 * pulse, 1);
-    coreMat.opacity = 0.85 + 0.1 * Math.sin(t * 2.5);
-    glow.scale.set(9 * pulse, 9 * pulse, 1);
-    glowMat.opacity = 0.10 + 0.08 * Math.sin(t * 2.5);
-
-    // slowly spin central paw
-    coreMat.rotation = t * 0.15;
-    glowMat.rotation = -t * 0.08;
-
-    // rings spin
-    ring1.rotation.y = t * 0.45;
-    ring2.rotation.y = -t * 0.32;
-    ring3.rotation.y = t * 0.2;
-
-    // each paw in ring rotates to face slightly different direction
-    ring1.children.forEach((sp, i) => { sp.material.rotation = t * 0.6 + (i / ring1.children.length) * Math.PI * 2; });
-    ring2.children.forEach((sp, i) => { sp.material.rotation = -t * 0.5 + (i / ring2.children.length) * Math.PI * 2; });
-    ring3.children.forEach((sp, i) => { sp.material.rotation = t * 0.4 + (i / ring3.children.length) * Math.PI * 2; });
-
-    // floating paws bob
-    floatData.forEach(({ sp, speed, offset }) => {
-      sp.position.y += Math.sin(t * speed + offset) * 0.007;
-      sp.material.rotation += 0.005;
-    });
-
-    // light pulse
-    pl.intensity = 1.5 + Math.sin(t * 2) * 0.8;
-
-    // mouse parallax
-    camera.position.x += (mx * 1.5 - camera.position.x) * 0.05;
-    camera.position.y += (-my * 1.5 - camera.position.y) * 0.05;
-    camera.lookAt(0, 0, 0);
-
-    renderer.render(scene, camera);
+  let t=0;
+  function animate(){
+    requestAnimationFrame(animate); t+=.012;
+    const p=1+.07*Math.sin(t*2.5);
+    core.scale.set(6*p,6*p,1); coreMat.opacity=.85+.1*Math.sin(t*2.5);
+    glow.scale.set(9*p,9*p,1); glowMat.opacity=.10+.08*Math.sin(t*2.5);
+    coreMat.rotation=t*.15; glowMat.rotation=-t*.08;
+    ring1.rotation.y=t*.45; ring2.rotation.y=-t*.32; ring3.rotation.y=t*.2;
+    ring1.children.forEach((sp,i)=>{sp.material.rotation=t*.6+(i/ring1.children.length)*Math.PI*2;});
+    ring2.children.forEach((sp,i)=>{sp.material.rotation=-t*.5+(i/ring2.children.length)*Math.PI*2;});
+    ring3.children.forEach((sp,i)=>{sp.material.rotation=t*.4+(i/ring3.children.length)*Math.PI*2;});
+    floatData.forEach(({sp,speed,offset})=>{sp.position.y+=Math.sin(t*speed+offset)*.007; sp.material.rotation+=.005;});
+    pl.intensity=1.5+Math.sin(t*2)*.8;
+    camera.position.x+=(mx*1.5-camera.position.x)*.05;
+    camera.position.y+=(-my*1.5-camera.position.y)*.05;
+    camera.lookAt(0,0,0); renderer.render(scene,camera);
   }
   animate();
 
-  window.addEventListener('resize', () => {
-    const W2 = wrap.clientWidth, H2 = wrap.clientHeight;
-    renderer.setSize(W2, H2);
-    camera.aspect = W2 / H2;
-    camera.updateProjectionMatrix();
+  window.addEventListener('resize',()=>{
+    const W2=wrap.clientWidth,H2=wrap.clientHeight;
+    renderer.setSize(W2,H2); camera.aspect=W2/H2; camera.updateProjectionMatrix();
   });
 })();
 </script>
 
 <script>
-  // ── F-16 ────────────────────────────────────────────────────
-  (function() {
-    const cv  = document.getElementById('f16canvas');
-    const ctx = cv.getContext('2d');
-    // plane center
-    const cx = 155, cy = 60;
+// Nav scroll effect
+window.addEventListener('scroll', () => {
+  document.getElementById('mainNav').classList.toggle('scrolled', window.scrollY > 20);
+});
 
-    ctx.save();
-    ctx.translate(cx, cy);
+// Counter animation
+function animateCounter(el) {
+  const target = parseInt(el.dataset.target);
+  const duration = 1800;
+  const step = target / (duration / 16);
+  let current = 0;
+  const timer = setInterval(() => {
+    current = Math.min(current + step, target);
+    el.textContent = target >= 1000 ? Math.round(current).toLocaleString('pl-PL') + (target === 5000 ? '+' : '') : Math.round(current) + (target === 12 ? '+' : '');
+    if (current >= target) clearInterval(timer);
+  }, 16);
+}
 
-    // — contrail (extends to the right = behind the jet flying left)
-    const trail = ctx.createLinearGradient(60, 0, 300, 0);
-    trail.addColorStop(0,   'rgba(200,220,255,0.75)');
-    trail.addColorStop(0.4, 'rgba(200,220,255,0.3)');
-    trail.addColorStop(1,   'rgba(200,220,255,0)');
-    // two thin contrail lines
-    [-6, 6].forEach(dy => {
-      ctx.beginPath();
-      ctx.strokeStyle = trail;
-      ctx.lineWidth = 2.5;
-      ctx.moveTo(62, dy);
-      ctx.lineTo(300, dy);
-      ctx.stroke();
-    });
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => { if (e.isIntersecting) { animateCounter(e.target); observer.unobserve(e.target); }});
+}, { threshold: 0.5 });
+document.querySelectorAll('.stat-num').forEach(el => observer.observe(el));
 
-    // — afterburner glow
-    const burn = ctx.createRadialGradient(68, 0, 0, 68, 0, 22);
-    burn.addColorStop(0,   'rgba(255,200,50,0.95)');
-    burn.addColorStop(0.35,'rgba(255,100,0,0.7)');
-    burn.addColorStop(1,   'rgba(255,50,0,0)');
-    ctx.fillStyle = burn;
-    ctx.beginPath();
-    ctx.ellipse(76, 0, 22, 9, 0, 0, Math.PI * 2);
-    ctx.fill();
+// Form submit
+function handleForm(e) {
+  e.preventDefault();
+  const toast = document.getElementById('toast');
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 4500);
+  e.target.reset();
+}
 
-    const body  = '#0d1b4b';
-    const wing  = '#142060';
-    const panel = '#1a2a70';
-
-    // — main fuselage
-    ctx.fillStyle = body;
-    ctx.beginPath();
-    ctx.moveTo(-95, 0);      // nose tip
-    ctx.lineTo(-75, -7);
-    ctx.lineTo(-50, -10);
-    ctx.lineTo(-28, -13);    // canopy front
-    ctx.lineTo(-10, -15);    // canopy peak
-    ctx.lineTo(8,  -12);     // canopy rear
-    ctx.lineTo(22, -9);
-    ctx.lineTo(45, -7);
-    ctx.lineTo(65,  0);      // tail center
-    ctx.lineTo(45,  7);
-    ctx.lineTo(20,  9);
-    ctx.lineTo(0,   11);     // intake bulge
-    ctx.lineTo(-20,  9);
-    ctx.lineTo(-75,  6);
-    ctx.closePath();
-    ctx.fill();
-
-    // intake scoop detail
-    ctx.fillStyle = '#08122e';
-    ctx.beginPath();
-    ctx.ellipse(-15, 10, 14, 5, 0.15, 0, Math.PI);
-    ctx.fill();
-
-    // — main delta wing (upper)
-    ctx.fillStyle = wing;
-    ctx.beginPath();
-    ctx.moveTo(-8, -9);
-    ctx.lineTo(38, -7);
-    ctx.lineTo(18, -46);
-    ctx.closePath();
-    ctx.fill();
-
-    // — main delta wing (lower)
-    ctx.beginPath();
-    ctx.moveTo(-8,  9);
-    ctx.lineTo(38,  7);
-    ctx.lineTo(18,  46);
-    ctx.closePath();
-    ctx.fill();
-
-    // — vertical tail fin
-    ctx.fillStyle = body;
-    ctx.beginPath();
-    ctx.moveTo(18, -8);
-    ctx.lineTo(55, -8);
-    ctx.lineTo(46, -42);
-    ctx.lineTo(22, -28);
-    ctx.closePath();
-    ctx.fill();
-
-    // — horizontal stabilizers
-    ctx.fillStyle = wing;
-    ctx.beginPath();
-    ctx.moveTo(38,  6); ctx.lineTo(64,  6); ctx.lineTo(58, 24); ctx.closePath(); ctx.fill();
-    ctx.beginPath();
-    ctx.moveTo(38, -6); ctx.lineTo(64, -6); ctx.lineTo(58,-24); ctx.closePath(); ctx.fill();
-
-    // — panel line on fuselage
-    ctx.strokeStyle = panel;
-    ctx.lineWidth = 1;
-    ctx.beginPath();
-    ctx.moveTo(-70, -4); ctx.lineTo(40, -5); ctx.stroke();
-
-    // — cockpit glass
-    ctx.fillStyle = 'rgba(100,180,255,0.65)';
-    ctx.beginPath();
-    ctx.ellipse(-20, -14, 20, 5, -0.08, 0, Math.PI * 2);
-    ctx.fill();
-    // cockpit highlight
-    ctx.fillStyle = 'rgba(200,235,255,0.4)';
-    ctx.beginPath();
-    ctx.ellipse(-24, -16, 10, 2.5, -0.08, 0, Math.PI * 2);
-    ctx.fill();
-
-    ctx.restore();
-  })();
-
-  function handleForm(e) {
-    e.preventDefault();
-    const toast = document.getElementById('toast');
-    toast.classList.add('show');
-    setTimeout(() => toast.classList.remove('show'), 4000);
-    e.target.reset();
-  }
-
-  // Smooth scroll for all anchor links
-  document.querySelectorAll('a[href^="#"]').forEach(a => {
-    a.addEventListener('click', e => {
-      e.preventDefault();
-      document.querySelector(a.getAttribute('href'))?.scrollIntoView({ behavior: 'smooth' });
-    });
+// Smooth scroll
+document.querySelectorAll('a[href^="#"]').forEach(a => {
+  a.addEventListener('click', e => {
+    const target = document.querySelector(a.getAttribute('href'));
+    if (target) { e.preventDefault(); target.scrollIntoView({ behavior: 'smooth' }); }
   });
+});
 </script>
+
 </body>
 </html>
